@@ -88,19 +88,10 @@ html, body, #root, .App {
 
 /* AI Speech Bubble Specific Styles */
 .ai-bubble {
-    bottom: 250px; /* Position above the cats */
-    left: 65%;
+    bottom: 350px; /* Position above the cats */
+    left: 90%;
     transform: translateX(-50%);
-}
-
-.ai-bubble::after {
-    content: '';
-    position: absolute;
-    top: -19px;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 10px solid transparent;
-    border-bottom-color: #ffffff;
+    max-height: calc(100vh - 50px); /* Constrain height to viewport minus top padding */
 }
 
 /* User Speech Bubble Specific Styles (Last Prompt) */
@@ -109,16 +100,6 @@ html, body, #root, .App {
     left: 50%; /* Center horizontally */
     transform: translateX(-50%);
     flex-direction: row; /* Align button and text horizontally */
-}
-
-.user-bubble::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 10px solid transparent;
-    border-top-color: #ffffff;
 }
 
 .expand-button {
@@ -239,4 +220,11 @@ html, body, #root, .App {
     font-size: 1.5em;
     cursor: pointer;
     color: #333;
+}
+
+/* Media queries for responsive positioning */
+@media (max-width: 600px) {
+    .ai-bubble {
+        left: 60%; /* Move more left on smaller screens */
+    }
 }
