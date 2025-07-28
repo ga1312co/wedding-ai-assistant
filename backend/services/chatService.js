@@ -1,15 +1,11 @@
 const genAI = require('../config/gemini');
-const { getWeddingData } = require('./weddingDataService');
+const { buildWeddingContext } = require('../utils/contextBuilder');
 
 // Store chat sessions in memory (for a single-instance server)
 const chatSessions = {};
 
 const chat = async (sessionId, history, userMessage) => {
-  const weddingData = getWeddingData();
-  let context = "";
-  for (const key in weddingData) {
-    context += `${key.replace(/_/g, " ")}: ${weddingData[key]}.\n`;
-  }
+  const context = buildWeddingContext();
 
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 

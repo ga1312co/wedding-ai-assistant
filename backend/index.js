@@ -4,17 +4,14 @@ const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const chatRoutes = require('./routes/chat');
+const requestLogger = require('./middleware/requestLogger'); // Import requestLogger
 
 const app = express();
 const port = process.env.PORT || 3001;
 
-app.use((req, res, next) => {
-  console.log(`Incoming request: ${req.method} ${req.url}`);
-  next();
-});
-
 app.use(cors());
 app.use(express.json());
+app.use(requestLogger); // Use the requestLogger middleware
 
 app.use('/', authRoutes);
 app.use('/', chatRoutes);
