@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { login } from '../services/api';
+import TypewriterText from './TypewriterText'; // Import the new component
 import './Login.css';
 
 function Login({ onLogin }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [inputAnimated, setInputAnimated] = useState(false);
+
+  useEffect(() => {
+    // Trigger input animation on component mount
+    setInputAnimated(true);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,7 +29,9 @@ function Login({ onLogin }) {
   return (
     <div className="login-container">
       <form onSubmit={handleSubmit} className="login-form">
-        <h2>Välkommen till bröllopssidan!</h2>
+        <h2>
+          <TypewriterText text="Välkommen till bröllopssidan!" delay={75} />
+        </h2>
         <p>Var god ange det lösenord ni blivit tilldelade i er inbjudan.</p>
         <input
           type="password"
@@ -30,6 +39,7 @@ function Login({ onLogin }) {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Ange lösenord"
           required
+          className={inputAnimated ? 'input-slide-in' : ''}
         />
         <button type="submit">Logga in</button>
         {error && <p className="error-message">{error}</p>}

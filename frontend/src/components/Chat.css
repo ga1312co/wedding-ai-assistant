@@ -52,11 +52,9 @@ html, body, #root, .App {
     display: block;
 }
 
+/* Base Speech Bubble Styles */
 .speech-bubble {
     position: absolute;
-    bottom: 250px; /* Position above the cats */
-    left: 65%;
-    transform: translateX(-50%);
     background-color: #ffffff;
     border-radius: 15px;
     padding: 20px;
@@ -64,30 +62,38 @@ html, body, #root, .App {
     max-width: 400px;
     min-width: 200px;
     min-height: 40px;
-    max-height: 300px; /* Increased max-height for more rows */
+    max-height: 300px;
     text-align: center;
     color: #333;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out, bottom 0.3s ease-in-out;
-    z-index: 5;
     word-break: break-word;
-    white-space: pre-line; /* allow line breaks */
+    white-space: pre-line;
     overflow-wrap: break-word;
-    overflow-y: auto; /* Allow vertical scroll if content exceeds max-height */
+    overflow-y: auto;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    z-index: 5;
 }
 
 .speech-bubble.visible {
     opacity: 1;
-    bottom: 150px;
-    transition: opacity 0.3s ease-in-out, bottom 0.3s ease-in-out;
-    left: 65%;
 }
 
-.speech-bubble::after {
+.speech-bubble.fade-out {
+    opacity: 0 !important;
+}
+
+/* AI Speech Bubble Specific Styles */
+.ai-bubble {
+    bottom: 250px; /* Position above the cats */
+    left: 65%;
+    transform: translateX(-50%);
+}
+
+.ai-bubble::after {
     content: '';
     position: absolute;
     top: -19px;
@@ -97,8 +103,37 @@ html, body, #root, .App {
     border-bottom-color: #ffffff;
 }
 
-.messages {
-    display: none;
+/* User Speech Bubble Specific Styles (Last Prompt) */
+.user-bubble {
+    bottom: 100px; /* Above the input area */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%);
+    flex-direction: row; /* Align button and text horizontally */
+}
+
+.user-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 10px solid transparent;
+    border-top-color: #ffffff;
+}
+
+.user-message-text {
+    flex-grow: 1;
+    text-align: center;
+}
+
+.expand-button {
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    cursor: pointer;
+    color: #333;
+    padding: 5px;
+    margin-right: 5px; /* Space between button and text */
 }
 
 /* The floating input area */
@@ -154,4 +189,59 @@ html, body, #root, .App {
 
 .input-area button:hover {
     background-color: #c9302c;
+}
+
+/* Expanded Chat History */
+.expanded-chat-history {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #ffffff;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    max-width: 80%;
+    max-height: calc(100% - 200px); /* Adjust height to not cover cats.png */
+    overflow-y: auto;
+    z-index: 6; /* Above cats.png and other bubbles */
+    display: flex;
+    flex-direction: column;
+}
+
+.expanded-chat-history h2 {
+    color: #b35a2f;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.expanded-chat-history .history-messages {
+    flex-grow: 1;
+}
+
+.expanded-chat-history .history-message {
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.expanded-chat-history .history-message.user {
+    background-color: #f0f0f0;
+    text-align: right;
+}
+
+.expanded-chat-history .history-message.model {
+    background-color: #e0e0e0;
+    text-align: left;
+}
+
+.minimize-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #333;
 }

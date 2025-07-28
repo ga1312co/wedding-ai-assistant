@@ -3,63 +3,98 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f8f5e9; /* Beige/Eggshell */
+  background-color: #c96d3a; /* Main background color from chat */
   font-family: 'Arial', sans-serif;
+  overflow: hidden; /* Prevent scrollbars from animations */
+  position: relative;
+}
+
+.login-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)"/></svg>');
+    opacity: 0.05;
+    z-index: 1;
 }
 
 .login-form {
-  background-color: #ffffff;
+  background-color: #ffffff; /* White, similar to speech bubble */
   padding: 40px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 15px; /* More rounded corners */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Softer shadow */
   text-align: center;
   max-width: 400px;
-  width: 100%;
+  width: 90%; /* Responsive width */
+  z-index: 2; /* Above the noise background */
 }
 
 .login-form h2 {
-  color: #d9534f; /* Red/Orange */
+  color: #b35a2f; /* Darker reddish-brown from chat */
   margin-bottom: 20px;
+  font-size: 2em; /* Larger heading */
 }
 
 .login-form p {
-  color: #555;
+  color: #333; /* Dark grey from chat */
   margin-bottom: 25px;
+  font-size: 1.1em;
 }
 
 .login-form input[type="password"] {
   width: calc(100% - 24px);
-  padding: 12px;
+  padding: 15px; /* More padding */
   margin-bottom: 20px;
   border: 1px solid #ddd;
-  border-radius: 20px;
-  font-size: 16px;
+  border-radius: 25px; /* More rounded */
+  font-size: 17px;
   text-align: center;
+  transition: all 0.3s ease; /* Smooth transitions */
 }
 
 .login-form input[type="password"]:focus {
   outline: none;
-  border-color: #d9534f;
-  box-shadow: 0 0 0 2px rgba(217, 83, 79, 0.2);
+  border-color: #c96d3a; /* Main chat color for focus */
+  box-shadow: 0 0 0 3px rgba(201, 109, 58, 0.3); /* Softer, matching shadow */
 }
 
 .login-form button {
-  background-color: #d9534f; /* Red/Orange */
+  background-color: #b35a2f; /* Darker reddish-brown from chat */
   color: white;
   border: none;
-  padding: 12px 25px;
-  border-radius: 20px;
+  padding: 15px 30px; /* More padding */
+  border-radius: 25px; /* More rounded */
   cursor: pointer;
-  font-size: 18px;
-  transition: background-color 0.3s ease;
+  font-size: 1.2em;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .login-form button:hover {
-  background-color: #c9302c; /* Darker Red/Orange */
+  background-color: #9e4d2a; /* Slightly darker for hover */
+  transform: translateY(-2px); /* Subtle lift effect */
 }
 
 .error-message {
-  color: #d32f2f;
+  color: #d32f2f; /* Keep standard error red */
   margin-top: 15px;
   font-size: 14px;
+}
+
+/* Animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.input-slide-in {
+  animation: slideInRight 0.5s ease-out forwards;
 }
