@@ -86,6 +86,14 @@ function Chat() {
       content = content.replace(mapMatch[0], `<a href="${mapsUrl}" target="_blank" rel="noopener noreferrer">View Map for ${address}</a>`);
     }
 
+    // Regex to find RICH_CONTENT links and make them clickable, replacing the preceding text
+    const richContentRegex = /(via den här länken: )?\[RICH_CONTENT:{"type":"rsvp_card","data":{"deadline":"(.*?)","link":"(.*?)"}}\]/g;
+    content = content.replace(richContentRegex, `<a href="$3" target="_blank" rel="noopener noreferrer">Anmälningslänk</a>`);
+
+    // Regex to find general URLs and make them clickable
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    content = content.replace(urlRegex, `<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>`);
+
     return <span dangerouslySetInnerHTML={{ __html: content }} />;
   };
 
