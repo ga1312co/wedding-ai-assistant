@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { sendMessage } from '../services/api';
-import SpeechBubble from './SpeechBubble'; // Import SpeechBubble
+import ChatInput from './ChatInput';
+import ChatDisplay from './ChatDisplay';
+import ExpandedChatHistory from './ExpandedChatHistory';
 import './Chat.css';
-import catsImage from '../assets/cats.png';
 
 function Chat() {
   const [messages, setMessages] = useState([]);
@@ -95,53 +96,30 @@ function Chat() {
           <div className="messages">
             <div ref={messagesEndRef} />
           </div>
-          <div className="cats-image-container">
-            <SpeechBubble
-              isVisible={speechBubbleVisible}
-              isTyping={isTyping}
-              type="ai"
-              onTypingEnd={handleTypingEnd}
-            >
-              {botMessage && isTyping ? botMessage : displayBotMessage && renderMessageContent(displayBotMessage)}
-            </SpeechBubble>
-            <img src={catsImage} alt="Cats" className="cats-image" />
-          </div>
-          <div className="floor"></div>
-          {lastUserMessage && (
-            <SpeechBubble isVisible={true} type="user" className="user-last-message-bubble-position">
-              <button className="expand-button" onClick={() => setIsChatHistoryExpanded(true)}>☰</button>
-              <div className="user-message-text">{renderMessageContent(lastUserMessage)}</div>
-            </SpeechBubble>
-          )}
-          <div className="input-area">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  handleSendMessage();
-                }
-              }}
-              placeholder="Fråga mig om bröllopet..."
-            />
-            <button onClick={handleSendMessage}>➾</button>
-          </div>
+          <ChatDisplay
+            botMessage={botMessage}
+            displayBotMessage={displayBotMessage}
+            speechBubbleVisible={speechBubbleVisible}
+            isTyping={isTyping}
+            handleTypingEnd={handleTypingEnd}
+            lastUserMessage={lastUserMessage}
+            setIsChatHistoryExpanded={setIsChatHistoryExpanded}
+            renderMessageContent={renderMessageContent}
+          />
+          <ChatInput
+            input={input}
+            setInput={setInput}
+            handleSendMessage={handleSendMessage}
+          />
         </>
       )}
 
       {isChatHistoryExpanded && (
-        <div className="expanded-chat-history">
-          <button className="minimize-button" onClick={() => setIsChatHistoryExpanded(false)}>✕</button>
-          <h2>Chat History</h2>
-          <div className="history-messages">
-            {messages.map((msg, index) => (
-              <div key={index} className={`history-message ${msg.sender}`}>
-                <strong>{msg.sender === 'user' ? 'You:' : 'AI:'}</strong> {renderMessageContent(msg.text)}
-              </div>
-            ))}
-          </div>
-        </div>
+        <ExpandedChatHistory
+          messages={messages}
+          minimizeChatHistory={() => setIsChatHistoryExpanded(false)}
+          renderMessageContent={renderMessageContent}
+        />
       )}
     </div>
   );

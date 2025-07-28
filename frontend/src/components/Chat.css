@@ -121,11 +121,6 @@ html, body, #root, .App {
     border-top-color: #ffffff;
 }
 
-.user-message-text {
-    flex-grow: 1;
-    text-align: center;
-}
-
 .expand-button {
     background: none;
     border: none;
