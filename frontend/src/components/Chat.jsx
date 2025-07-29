@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import DOMPurify from 'dompurify';
 import { sendMessage } from '../services/api';
 import ChatInput from './ChatInput';
 import ChatDisplay from './ChatDisplay';
@@ -94,7 +95,7 @@ function Chat() {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     content = content.replace(urlRegex, `<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>`);
 
-    return <span dangerouslySetInnerHTML={{ __html: content }} />;
+    return <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }} />;
   };
 
   return (
