@@ -1,5 +1,4 @@
 require('dotenv').config();
-console.log('Backend starting with LOGIN_PASSWORD:', process.env.LOGIN_PASSWORD); // Debugging .env loading
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
