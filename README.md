@@ -11,3 +11,9 @@ AND
 - NPM Run for frontend
 
 **🐈🐈‍⬛**
+
+To-do:
+-Solve Google Maps embedding
+-Solve Pictures embedding in speach bubbles
+-Improve prompting
+-Deployment
