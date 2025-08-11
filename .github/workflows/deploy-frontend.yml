@@ -49,7 +49,9 @@ jobs:
         run: npm run build
 
       - name: Upload to GCS
-        run: gsutil -m rsync -r -d frontend/dist gs://wedding-frontend-bucket
+        run: gsutil -m rsync -r -d frontend/dist/ gs://wedding-frontend-bucket
+             gsutil setmeta -h "Cache-Control:no-cache" gs://wedding-frontend-bucket/index.html
+             gsutil ls -r gs://wedding-frontend-bucket | head -n 50
 
       - name: Set no-cache on index.html
         run: gsutil setmeta -h "Cache-Control:no-cache" gs://wedding-frontend-bucket/index.html
