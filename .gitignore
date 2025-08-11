@@ -88,11 +88,6 @@ public
 # TernJS port file
 .tern-port
 
-# Docker
-.dockerignore
-Dockerfile*
-docker-compose*.yml
-
 # IDE and Editor files
 .vscode/
 .idea/
