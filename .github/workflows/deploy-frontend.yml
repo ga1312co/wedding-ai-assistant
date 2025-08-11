@@ -1,0 +1,53 @@
+name: Deploy Frontend to GCS
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/deploy-frontend.yml"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Auth to Google Cloud (WIF)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+
+      # Första gången: se till att bucket finns och är korrekt konfad (idempotent)
+      - name: Ensure bucket exists and website config
+        run: |
+          gsutil ls -b gs://wedding-frontend-bucket || \
+            gcloud storage buckets create gs://wedding-frontend-bucket --location=europe-north2
+          gcloud storage buckets update gs://wedding-frontend-bucket \
+            --web-main-page-suffix=index.html --web-error-page=index.html
+          gcloud storage buckets add-iam-policy-binding gs://wedding-frontend-bucket \
+            --member=allUsers --role=roles/storage.objectViewer || true
+
+      - name: Install deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build with backend URL
+        working-directory: frontend
+        env:
+          VITE_BACKEND_URL: "https://wedding-backend-1039804058960.europe-north2.run.app"
+        run: npm run build
+
+      - name: Upload to GCS
+        run: gsutil -m rsync -r frontend/dist gs://wedding-frontend-bucket
