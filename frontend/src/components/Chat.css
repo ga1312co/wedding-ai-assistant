@@ -33,7 +33,7 @@ html, body, #root, .App {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 250px;
+    height: 300px;
     background-color: #b35a2f;
     z-index: 1;
 }
@@ -62,7 +62,7 @@ html, body, #root, .App {
     max-width: 400px;
     min-width: 200px;
     min-height: 40px;
-    max-height: 300px;
+    max-height: calc(100vh - 400px); /* Constrain to viewport minus space for cats and input */
     text-align: center;
     color: #333;
     word-break: break-word;
@@ -88,10 +88,10 @@ html, body, #root, .App {
 
 /* AI Speech Bubble Specific Styles */
 .ai-bubble {
-    bottom: 350px; /* Position above the cats */
+    top: 50px; /* Position from top instead of bottom */
     left: 90%;
     transform: translateX(-50%);
-    max-height: calc(100vh - 50px); /* Constrain height to viewport minus top padding */
+    max-height: calc(100vh - 450px); /* Leave space for cats (300px) + input (100px) + padding (50px) */
 }
 
 /* User Speech Bubble Specific Styles (Last Prompt) */
@@ -112,22 +112,30 @@ html, body, #root, .App {
     margin-right: 5px; /* Space between button and text */
 }
 
-/* The floating input area */
-.input-area {
-    position: relative; /* Let it be part of the flex flow */
+.input-container {
+    position: relative;
     z-index: 4;
     display: flex;
     align-items: center;
     width: 100%;
     max-width: 500px;
-    margin-bottom: 40px; /* Space from the bottom */
-    background: none; /* No background on the container */
+    margin-bottom: 20px;
+    gap: 10px; /* Space between input area and RSVP button */
+}
+
+/* The floating input area */
+.input-area {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-grow: 1; /* Take up remaining space */
+    background: none;
     border: none;
 }
 
 .input-area input {
     flex-grow: 1;
-    padding: 18px 60px 18px 25px; /* Right padding for the button */
+    padding: 18px 60px 18px 25px; /* Back to original padding */
     border: none;
     border-radius: 30px;
     font-size: 16px;
@@ -165,6 +173,24 @@ html, body, #root, .App {
 
 .input-area button:hover {
     background-color: #c9302c;
+}
+
+/* RSVP Button */
+.rsvp-button {
+  position: relative;
+  background-color: #4CAF50;
+  color: white;
+  padding: 18px 15px; /* Match input height */
+  border: none;
+  border-radius: 30px; /* Match input border radius */
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap; /* Prevent text wrapping */
+  flex-shrink: 0; /* Prevent button from shrinking */
+}
+
+.rsvp-button:hover {
+  background-color: #45a049;
 }
 
 /* Expanded Chat History */

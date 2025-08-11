@@ -4,6 +4,7 @@ import { sendMessage } from '../services/api';
 import ChatInput from './ChatInput';
 import ChatDisplay from './ChatDisplay';
 import ExpandedChatHistory from './ExpandedChatHistory';
+import Rsvp from './Rsvp';
 import './Chat.css';
 
 function Chat() {
@@ -15,6 +16,7 @@ function Chat() {
   const [lastUserMessage, setLastUserMessage] = useState(null);
   const [isChatHistoryExpanded, setIsChatHistoryExpanded] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [isRsvpOpen, setIsRsvpOpen] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -115,11 +117,14 @@ function Chat() {
             setIsChatHistoryExpanded={setIsChatHistoryExpanded}
             renderMessageContent={renderMessageContent}
           />
-          <ChatInput
-            input={input}
-            setInput={setInput}
-            handleSendMessage={handleSendMessage}
-          />
+          <div className="input-container">
+            <ChatInput
+              input={input}
+              setInput={setInput}
+              handleSendMessage={handleSendMessage}
+            />
+            <button className="rsvp-button" onClick={() => setIsRsvpOpen(true)}>RSVP</button>
+          </div>
         </>
       )}
 
@@ -130,6 +135,8 @@ function Chat() {
           renderMessageContent={renderMessageContent}
         />
       )}
+
+      {isRsvpOpen && <Rsvp onClose={() => setIsRsvpOpen(false)} />}
     </div>
   );
 }
