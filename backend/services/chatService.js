@@ -21,6 +21,7 @@ const chat = async (sessionId, history, userMessage) => {
                                           If the user asks about the wedding, provide relevant information based on the context below. If the question is unspecific, provide a general overview of the wedding details.
                                           Make sure to implore to the user that they should answer the RSVP, but only once per session or when contextually appropriate.
                                           When providing links, ensure they are clickable and formatted correctly (No exclamation marks right after the link).
+                                          Never answer in markup, only in plain text. 
                                           
                                           \n\nWedding Information:\n${context}` }] },
         { role: "model", parts: [{ text: "Hej! Jag är här för att svara på alla dina frågor om bröllopet. Vad undrar du?" }] }
