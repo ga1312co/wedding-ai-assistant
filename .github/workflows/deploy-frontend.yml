@@ -50,3 +50,6 @@ jobs:
 
       - name: Upload to GCS
         run: gsutil -m rsync -r -d frontend/dist gs://wedding-frontend-bucket
+
+      - name: Set no-cache on index.html
+        run: gsutil setmeta -h "Cache-Control:no-cache" gs://wedding-frontend-bucket/index.html
