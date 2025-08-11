@@ -1,19 +1,25 @@
-require('dotenv').config({ path: '../.env' });
+if (process.env.NODE_ENV !== 'production') {
+  try { require('dotenv').config(); } catch {}
+}
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const chatRoutes = require('./routes/chat');
-const requestLogger = require('./middleware/requestLogger'); // Import requestLogger
+const requestLogger = require('./middleware/requestLogger');
 
 const app = express();
 const port = process.env.PORT || 3001;
 
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || '*'
+}));
 app.use(express.json());
 app.use(requestLogger);
 
 app.use('/', authRoutes);
 app.use('/', chatRoutes);
+
+app.get('/healthz', (_req, res) => res.status(200).send('ok'));
 
 app.get('/', (req, res) => {
   res.send('Hello from the Wedding AI Assistant backend!');
