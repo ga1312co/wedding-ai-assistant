@@ -1,13 +1,13 @@
-TO USE FOR WEDDING MAYBE???
+# WEDDING AI ASSISTANT
+![cats.png](https://drive.google.com/file/d/1z93_41jD2vQPAUUwh40y_6NmdSMOgTZg/view?usp=sharing)
 
-**TO RUN: USE .ENV FOR BACKEND AND ROOT WITH:**
+**TO RUN: USE .ENV IN ROOT WITH:**
 - LOGIN_PASSWORD:XXX
 - GEMINI_API_KEY:XXX
-- GOOGLE_MAPS_API_KEY:XXX
 
 AND
 - Clone project
-- Docker compose for backend
+- Docker compose / node index.js for backend
 - NPM Run for frontend
 
 **🐈🐈‍⬛**
