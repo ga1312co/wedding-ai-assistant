@@ -46,8 +46,8 @@ jobs:
           IMAGE: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.AR_REPOSITORY }}/wedding-backend:${{ github.sha }}
         run: |
           gcloud run deploy ${{ vars.SERVICE_NAME }} \
-            --image "$IMAGE" \
-            --platform managed \
-            --region ${{ vars.GCP_REGION }} \
-            --allow-unauthenticated \
-            --set-env-vars GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},LOGIN_PASSWORD=${{ secrets.LOGIN_PASSWORD }}
+          --image "$IMAGE" \
+          --platform managed \
+          --region ${{ vars.GCP_REGION }} \
+          --allow-unauthenticated \
+          --set-env-vars GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},LOGIN_PASSWORD=${{ secrets.LOGIN_PASSWORD }},CORS_ORIGIN="https://storage.googleapis.com/wedding-frontend-bucket,https://wedding-frontend-bucket.storage.googleapis.com"
