@@ -29,7 +29,6 @@ jobs:
         with:
           project_id: ${{ vars.GCP_PROJECT_ID }}
 
-      # Första gången: se till att bucket finns och är korrekt konfad (idempotent)
       - name: Ensure bucket exists and website config
         run: |
           gsutil ls -b gs://wedding-frontend-bucket || \
@@ -50,4 +49,4 @@ jobs:
         run: npm run build
 
       - name: Upload to GCS
-        run: gsutil -m rsync -r frontend/dist gs://wedding-frontend-bucket
+        run: gsutil -m rsync -r -d frontend/dist gs://wedding-frontend-bucket
