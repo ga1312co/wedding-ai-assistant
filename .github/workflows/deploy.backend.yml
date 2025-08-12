@@ -46,7 +46,7 @@ jobs:
           cat > env.yaml <<'EOF'
           GEMINI_API_KEY: "${{ secrets.GEMINI_API_KEY }}"
           LOGIN_PASSWORD: "${{ secrets.LOGIN_PASSWORD }}"
-          CORS_ORIGIN: "https://storage.googleapis.com/wedding-frontend-bucket,https://wedding-frontend-bucket.storage.googleapis.com"
+          CORS_ORIGIN: "https://wedding-frontend-bucket.storage.googleapis.com"
           EOF
 
       - name: Deploy to Cloud Run
