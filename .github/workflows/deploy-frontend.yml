@@ -49,9 +49,15 @@ jobs:
         run: npm run build
 
       - name: Upload to GCS
-        run: gsutil -m rsync -r -d frontend/dist/ gs://wedding-frontend-bucket
-             gsutil setmeta -h "Cache-Control:no-cache" gs://wedding-frontend-bucket/index.html
-             gsutil ls -r gs://wedding-frontend-bucket | head -n 50
+        run: |
+          set -e
+          # Sync the built app to the bucket root and delete removed files
+          gsutil -m rsync -r -d frontend/dist/ gs://wedding-frontend-bucket
 
-      - name: Set no-cache on index.html
-        run: gsutil setmeta -h "Cache-Control:no-cache" gs://wedding-frontend-bucket/index.html
+          # Cache policy: long cache for hashed assets, no-store for index.html
+          gsutil -m setmeta -h "Cache-Control:public, max-age=31536000, immutable" gs://wedding-frontend-bucket/assets/** || true
+          gsutil setmeta -h "Cache-Control:no-store" gs://wedding-frontend-bucket/index.html || true
+
+          # Debug listing
+          gsutil ls -r gs://wedding-frontend-bucket | head -n 50
+
