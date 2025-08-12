@@ -58,4 +58,4 @@ jobs:
             --platform managed \
             --region ${{ vars.GCP_REGION }} \
             --allow-unauthenticated \
-            --env-vars-file env.yaml
+            --set-env-vars GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},LOGIN_PASSWORD=${{ secrets.LOGIN_PASSWORD }},CORS_ORIGIN=https://storage.googleapis.com/wedding-frontend-bucket\,https://wedding-frontend-bucket.storage.googleapis.com
