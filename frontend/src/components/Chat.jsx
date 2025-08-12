@@ -123,7 +123,7 @@ function Chat() {
               setInput={setInput}
               handleSendMessage={handleSendMessage}
             />
-            <button className="rsvp-button" onClick={() => setIsRsvpOpen(true)}>RSVP</button>
+            <button className="rsvp-button" onClick={() => setIsRsvpOpen(true)}>OSA</button>
           </div>
         </>
       )}

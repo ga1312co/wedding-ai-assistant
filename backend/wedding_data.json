@@ -28,6 +28,7 @@
   "venue_parking_info": "There is free parking available at the venue.",
   "church_parking_info": "The church is located just beside Triangeln. There is a parking garage at Triangeln, and street parking is available in the area.",
   "rsvp_deadline": "March 30, 2026",
+  "rsvp_instructions": "The RSVP is a form that opens when the user clicks the green button called 'OSA'. If the user can't find it, it is placed just below the cat and to the right of the chat input field. If it doesn't open, provide the link.",
   "rsvp_link": "https://forms.gle/8c7ArAeDAfadrXwU8",
   "children_policy": "Children are welcome at the ceremony but not the reception. Please make arrangements for their care during the reception.",
   "plus_one_policy": "We don't have space for guests to bring a plus one. The invitation is for the named guests only.",
