@@ -1,6 +1,6 @@
 const chatService = require('../services/chatService');
 
-const postChatMessage = async (req, res) => {
+const postChatMessage = async (req, res, next) => {
   try {
     const { history, message, sessionId } = req.body;
     const sid = sessionId || 'anon_' + Date.now();
@@ -10,8 +10,7 @@ const postChatMessage = async (req, res) => {
     }
     res.json({ text });
   } catch (error) {
-    console.error("Error in chat endpoint:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    next(error);
   }
 };
 
