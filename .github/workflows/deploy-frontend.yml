@@ -36,7 +36,4 @@ jobs:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
         run: |
           npm i -g firebase-tools
-          firebase deploy \
-            --only hosting:wedding-assistant \
-            --project gen-lang-client-0696049425 \
-            --token "$FIREBASE_TOKEN"
+          firebase deploy --only hosting --project gen-lang-client-0696049425 --token "$FIREBASE_TOKEN"
