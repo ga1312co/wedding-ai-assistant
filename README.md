@@ -4,7 +4,7 @@
 - LOGIN_PASSWORD:XXX
 - GEMINI_API_KEY:XXX
 
-** AND
+*** AND
 - Clone project 
 - Docker compose / node index.js for backend 🐳
 - NPM Run for frontend 🏃
