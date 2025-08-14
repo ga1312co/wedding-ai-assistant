@@ -2,9 +2,9 @@ const chatService = require('../services/chatService');
 
 const postChatMessage = async (req, res) => {
   try {
-    const { history, message } = req.body;
-    const sessionId = 'default_session'; 
-    const text = await chatService.chat(sessionId, history, message);
+    const { history, message, sessionId } = req.body;
+    const sid = sessionId || 'anon_' + Date.now();
+    const text = await chatService.chat(sid, history, message);
     res.json({ text });
   } catch (error) {
     console.error("Error in chat endpoint:", error);
