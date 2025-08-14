@@ -1,7 +1,9 @@
 import React from 'react';
 import SpeechBubble from './SpeechBubble';
 import './Chat.css';
-import catsImage from '../assets/cats.png';
+import sofaImage from '../assets/sofa.png';
+import cleoImage from '../assets/cleo.png';
+import cleoSleepingImage from '../assets/cleosleeping.png';
 
 function ChatDisplay({
   botMessage,
@@ -12,6 +14,7 @@ function ChatDisplay({
   lastUserMessage,
   setIsChatHistoryExpanded,
   renderMessageContent,
+  isSleeping,
 }) {
   return (
     <>
@@ -24,7 +27,12 @@ function ChatDisplay({
         >
           {botMessage && isTyping ? botMessage : displayBotMessage && renderMessageContent(displayBotMessage)}
         </SpeechBubble>
-        <img src={catsImage} alt="Cats" className="cats-image" />
+        <img src={sofaImage} alt="Soffa" className="sofa-image" />
+        <img
+          src={isSleeping ? cleoSleepingImage : cleoImage}
+          alt="Cleo"
+          className={`cleo-image ${isSleeping ? 'cleo-sleeping-image' : ''}`}
+        />
       </div>
       <div className="floor"></div>
       {lastUserMessage && (
