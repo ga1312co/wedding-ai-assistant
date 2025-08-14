@@ -177,20 +177,22 @@ html, body, #root, .App {
 
 /* RSVP Button */
 .rsvp-button {
-  position: absolute;
-  background-color: #4CAF50;
+  position: relative; /* inline within flex container */
+  background-color: #0ce20c;
   color: white;
-  top: 16px;
-  right: 16px;
   border: none;
-  border-radius: 30px; /* Match input border radius */
+  border-radius: 30px;
   cursor: pointer;
   font-size: 14px;
-  white-space: nowrap; /* Prevent text wrapping */
-}
-
-.rsvp-button:hover {
-  background-color: #45a049;
+  padding: 12px 20px;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  flex-shrink: 0;
+  height: 54px; /* visually align with input height (approx padding + font) */
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+  z-index: 1; /* no longer needs large stacking */
 }
 
 /* Expanded Chat History */

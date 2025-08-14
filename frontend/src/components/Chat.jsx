@@ -118,6 +118,7 @@ function Chat() {
             renderMessageContent={renderMessageContent}
           />
           <div className="input-container">
+            <button className="rsvp-button" onClick={() => setIsRsvpOpen(true)}>OSA</button>
             <ChatInput
               input={input}
               setInput={setInput}
@@ -126,8 +127,6 @@ function Chat() {
           </div>
         </>
       )}
-
-      <button className="rsvp-button" onClick={() => setIsRsvpOpen(true)}>OSA</button>
 
       {isChatHistoryExpanded && (
         <ExpandedChatHistory
