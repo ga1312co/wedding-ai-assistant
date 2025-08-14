@@ -1,4 +1,14 @@
 {
   "projects": {
     "default": "gen-lang-client-0696049425"
+  },
+  "targets": {
+    "gen-lang-client-0696049425": {
+      "hosting": {
+        "gen-lang-client-0696049425": [
+          "gen-lang-client-0696049425"
+        ]
+      }
+    }
   }
+}
