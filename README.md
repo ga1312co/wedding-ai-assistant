@@ -5,6 +5,10 @@
 - GEMINI_API_KEY:XXX
 
 AND
-- Clone project
-- Docker compose / node index.js for backend
-- NPM Run for frontend
+- Clone project 
+- Docker compose / node index.js for backend 🐳
+- NPM Run for frontend 🏃
+
+### DEPLOYMENT
+#### BACKEND - GOOGLE CLOUD RUN ☁️☁️☁️
+#### FRONTEND - FIREBASE 🔥🔥🔥
