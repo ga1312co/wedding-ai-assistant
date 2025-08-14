@@ -27,6 +27,7 @@ const chatRoutes = require('./routes/chat');
 const requestLogger = require('./middleware/requestLogger');
 
 const app = express();
+app.set('trust proxy', true); // so req.ip works correctly behind proxies (Cloud Run / load balancers)
 const port = process.env.PORT || 3001;
 
 // CORS: support multiple origins via comma-separated env CORS_ORIGIN
