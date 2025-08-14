@@ -1,6 +1,6 @@
 # WEDDING AI ASSISTANT 🐈🐈‍⬛
 
-![Cats](frontend/assets/cats.png)
+![Cats](frontend/src/assets/cats.png)
 
 ### TO RUN: USE .ENV IN ROOT WITH:
 - LOGIN_PASSWORD:XXX
