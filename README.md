@@ -15,6 +15,8 @@
 #### BACKEND - GOOGLE CLOUD RUN ☁️☁️☁️
 #### FRONTEND - FIREBASE 🔥🔥🔥
 
+<img src="frontend/src/assets/UIScreenshot.png" alt="Cleo sleeping" width="500"/>
+
 ### Known Issues and Future Improvements
 
 *   **In-Memory Storage:** The backend uses in-memory storage for chat sessions and rate limiting. This is not suitable for production and should be replaced with a persistent data store like Redis. I opted against this as very few people will use this page.
