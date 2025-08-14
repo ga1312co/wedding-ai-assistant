@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "cleos-wedding-corner",
+    "site": "gen-lang-client-0696049425",
     "public": "frontend/dist",
     "ignore": ["**/.*", "**/node_modules/**"],
     "cleanUrls": true,
