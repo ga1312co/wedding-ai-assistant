@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const chatController = require('../controllers/chatController');
+const rateLimiter = require('../middleware/rateLimiter');
 
-router.post('/chat', async (req, res) => {
+router.post('/chat', rateLimiter, async (req, res) => {
   try {
     // Basic diagnostics for debugging (safe to log)
     console.log('Incoming /chat request body keys:', Object.keys(req.body || {}));

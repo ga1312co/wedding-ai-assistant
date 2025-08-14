@@ -82,8 +82,11 @@ function Chat() {
       setMessages((prevMessages) => [...prevMessages, { text: response.text, sender: 'model' }]);
     } catch (error) {
       console.error('Error sending message:', error);
-      setBotMessage('Error: Could not connect to the chatbot.');
-      setMessages((prevMessages) => [...prevMessages, { text: 'Error: Could not connect to the chatbot.', sender: 'model' }]);
+      const serverMsg = error?.response?.status === 429
+        ? (error.response.data?.message || 'Du har nått gränsen för idag.')
+        : 'Error: Could not connect to the chatbot.';
+      setBotMessage(serverMsg);
+      setMessages((prevMessages) => [...prevMessages, { text: serverMsg, sender: 'model' }]);
     }
   };
 
