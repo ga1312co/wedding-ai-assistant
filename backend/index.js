@@ -25,6 +25,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const chatRoutes = require('./routes/chat');
 const requestLogger = require('./middleware/requestLogger');
+const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 app.set('trust proxy', true); // so req.ip works correctly behind proxies (Cloud Run / load balancers)
@@ -61,6 +62,8 @@ app.use((req, res, next) => {
 
 app.use('/', authRoutes);
 app.use('/', chatRoutes);
+
+app.use(errorHandler);
 
 app.get('/healthz', (_req, res) => res.status(200).send('ok'));
 

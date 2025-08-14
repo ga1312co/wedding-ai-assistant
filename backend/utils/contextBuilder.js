@@ -1,1 +1,13 @@
-const { getWeddingData } = require('../services/weddingDataService');const buildWeddingContext = () => {  const weddingData = getWeddingData();  let context = "";  for (const key in weddingData) {    context += `${key.replace(/_/g, " ")}: ${weddingData[key]}.\n`;  }  return context;};module.exports = { buildWeddingContext };
+const { getWeddingData } = require('../services/weddingDataService');
+
+const buildWeddingContext = () => {
+  const weddingData = getWeddingData();
+  let context = "";
+  for (const key in weddingData) {
+    context += `${key.replace(/_/g, " ")}: ${weddingData[key]}.
+`;
+  }
+  return context;
+};
+
+module.exports = { buildWeddingContext };
