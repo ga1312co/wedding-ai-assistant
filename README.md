@@ -1,5 +1,7 @@
 # WEDDING AI ASSISTANT 🐈🐈‍⬛
 
+![Cats](assets/cats.png)
+
 ### TO RUN: USE .ENV IN ROOT WITH:
 - LOGIN_PASSWORD:XXX
 - GEMINI_API_KEY:XXX
