@@ -15,7 +15,7 @@
 #### BACKEND - GOOGLE CLOUD RUN ☁️☁️☁️
 #### FRONTEND - FIREBASE 🔥🔥🔥
 
-**UI SCREENSHOT**
+### UI SCREENSHOT
 <img src="frontend/src/assets/UIScreenshot.png" alt="Cleo sleeping" width="500"/>
 
 ### Known Issues and Future Improvements
