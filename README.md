@@ -1,6 +1,6 @@
 # WEDDING AI ASSISTANT 🐈🐈‍⬛
 
-<img src="frontend/src/assets/cleosleeping.png" alt="Cleo sleeping" width="300"/>
+<img src="frontend/src/assets/cleosleeping.png" alt="Cleo sleeping" width="400"/>
 
 ### TO RUN: USE .ENV IN ROOT WITH:
 - LOGIN_PASSWORD:XXX
