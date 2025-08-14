@@ -123,10 +123,11 @@ function Chat() {
               setInput={setInput}
               handleSendMessage={handleSendMessage}
             />
-            <button className="rsvp-button" onClick={() => setIsRsvpOpen(true)}>OSA</button>
           </div>
         </>
       )}
+
+      <button className="rsvp-button" onClick={() => setIsRsvpOpen(true)}>OSA</button>
 
       {isChatHistoryExpanded && (
         <ExpandedChatHistory

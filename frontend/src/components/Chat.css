@@ -177,16 +177,16 @@ html, body, #root, .App {
 
 /* RSVP Button */
 .rsvp-button {
-  position: relative;
+  position: absolute;
   background-color: #4CAF50;
   color: white;
-  padding: 18px 15px; /* Match input height */
+  top: 16px;
+  right: 16px;
   border: none;
   border-radius: 30px; /* Match input border radius */
   cursor: pointer;
   font-size: 14px;
   white-space: nowrap; /* Prevent text wrapping */
-  flex-shrink: 0; /* Prevent button from shrinking */
 }
 
 .rsvp-button:hover {
