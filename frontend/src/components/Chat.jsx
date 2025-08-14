@@ -94,9 +94,28 @@ function Chat() {
     if (!text) return null;
     let content = text;
 
-    // Convert plain URLs to clickable links (ignore if already inside an anchor)
+    // 1. Convert Markdown links [text](url) to plain anchor once
+    content = content.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (_m, label, url) => {
+      // If label equals url (common duplication), show just the URL once
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer">${label === url ? url : label}</a>`;
+    });
+
+    // 2. Extract existing anchors to avoid double-linkifying their URLs
+    const anchorTokens = [];
+    content = content.replace(/<a\b[^>]*>.*?<\/a>/gi, (m) => {
+      const token = `__ANCHOR_${anchorTokens.length}__`;
+      anchorTokens.push(m);
+      return token;
+    });
+
+    // 3. Linkify remaining plain URLs (not already linked)
     content = content.replace(/(?<!["'=])(https?:\/\/[^\s)<>"']+)/g, (m) => {
       return `<a href="${m}" target="_blank" rel="noopener noreferrer">${m}</a>`;
+    });
+
+    // 4. Restore anchors
+    anchorTokens.forEach((a, i) => {
+      content = content.replace(`__ANCHOR_${i}__`, a);
     });
 
     return <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }} />;
