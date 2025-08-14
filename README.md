@@ -1,5 +1,5 @@
 # WEDDING AI ASSISTANT 🐈🐈‍⬛
-![cat.sofa](https://freesvg.org/img/1703071999cats-on-a-sofa.png)
+![cat.sofa]([https://freesvg.org/img/1703071999cats-on-a-sofa.png](https://img.freepik.com/premium-photo/two-cats-lying-white-sofa-home-i_114309-2533.jpg))
 
 **TO RUN: USE .ENV IN ROOT WITH:**
 - LOGIN_PASSWORD:XXX
