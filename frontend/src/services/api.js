@@ -6,6 +6,12 @@ const BASE_URL = import.meta.env.PROD
   ? import.meta.env.VITE_BACKEND_URL
   : (import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001');
 
+if (!import.meta.env.PROD) {
+  // Dev helper: shows which backend you are actually calling
+  // eslint-disable-next-line no-console
+  console.log('[dev] Using backend BASE_URL =', BASE_URL);
+}
+
 if (import.meta.env.PROD && !import.meta.env.VITE_BACKEND_URL) {
   // Helpful console message if someone forgot to set it during build
   // (Does not crash the app; API calls will fail visibly instead.)
