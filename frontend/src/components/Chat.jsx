@@ -18,6 +18,20 @@ function Chat() {
   const [isTyping, setIsTyping] = useState(false);
   const [isRsvpOpen, setIsRsvpOpen] = useState(false);
   const messagesEndRef = useRef(null);
+  const sessionIdRef = useRef(null);
+
+  if (!sessionIdRef.current) {
+    sessionIdRef.current = `sess_${Math.random().toString(16).slice(2)}${Date.now().toString(36)}`;
+  }
+
+  // Initial welcome message (no API call)
+  useEffect(() => {
+    if (messages.length === 0) {
+      const initial = { text: 'Hej! Jag är Cleo. Fråga mig vad du vill om bröllopet. Du skriver ditt meddelande i rutan nedanför.', sender: 'model' };
+      setMessages([initial]);
+      setBotMessage(initial.text);
+    }
+  }, []); // run once
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -59,43 +73,50 @@ function Chat() {
     setIsTyping(false);
 
     try {
-      const response = await sendMessage(input, messages.map(msg => ({
-        text: msg.text,
-        sender: msg.sender
-      })));
+      const response = await sendMessage(
+        input,
+        messages.map(msg => ({ text: msg.text, sender: msg.sender })),
+        sessionIdRef.current
+      );
       setBotMessage(response.text);
       setMessages((prevMessages) => [...prevMessages, { text: response.text, sender: 'model' }]);
     } catch (error) {
       console.error('Error sending message:', error);
-      setBotMessage('Error: Could not connect to the chatbot.');
-      setMessages((prevMessages) => [...prevMessages, { text: 'Error: Could not connect to the chatbot.', sender: 'model' }]);
+      const serverMsg = error?.response?.status === 429
+        ? (error.response.data?.message || 'Du har nått gränsen för idag.')
+        : 'Error: Could not connect to the chatbot.';
+      setBotMessage(serverMsg);
+      setMessages((prevMessages) => [...prevMessages, { text: serverMsg, sender: 'model' }]);
     }
   };
 
   const renderMessageContent = (text) => {
+    if (!text) return null;
     let content = text;
 
-    const imageMatch = content.match(/\[IMAGE:\s*(.*?) \]/);
-    if (imageMatch) {
-      const imageUrl = imageMatch[1];
-      content = content.replace(imageMatch[0], `<img src="${imageUrl}" alt="Wedding Image" style="max-width:100%; height:auto; border-radius: 8px; margin-top: 10px;" />`);
-    }
+    // 1. Convert Markdown links [text](url) to plain anchor once
+    content = content.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (_m, label, url) => {
+      // If label equals url (common duplication), show just the URL once
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer">${label === url ? url : label}</a>`;
+    });
 
-    const mapMatch = content.match(/\[MAP:\s*(.*?) \]/);
-    if (mapMatch) {
-      const address = mapMatch[1];
-      const encodedAddress = encodeURIComponent(address);
-      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
-      content = content.replace(mapMatch[0], `<a href="${mapsUrl}" target="_blank" rel="noopener noreferrer">View Map for ${address}</a>`);
-    }
+    // 2. Extract existing anchors to avoid double-linkifying their URLs
+    const anchorTokens = [];
+    content = content.replace(/<a\b[^>]*>.*?<\/a>/gi, (m) => {
+      const token = `__ANCHOR_${anchorTokens.length}__`;
+      anchorTokens.push(m);
+      return token;
+    });
 
-    // Regex to find RICH_CONTENT links and make them clickable, replacing the preceding text
-    const richContentRegex = /(via den här länken: )?\[RICH_CONTENT:{"type":"rsvp_card","data":{"deadline":"(.*?)","link":"(.*?)"}}\]/g;
-    content = content.replace(richContentRegex, `<a href="$3" target="_blank" rel="noopener noreferrer">Anmälningslänk</a>`);
+    // 3. Linkify remaining plain URLs (not already linked)
+    content = content.replace(/(?<!["'=])(https?:\/\/[^\s)<>"']+)/g, (m) => {
+      return `<a href="${m}" target="_blank" rel="noopener noreferrer">${m}</a>`;
+    });
 
-    // Regex to find general URLs and make them clickable
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    content = content.replace(urlRegex, `<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>`);
+    // 4. Restore anchors
+    anchorTokens.forEach((a, i) => {
+      content = content.replace(`__ANCHOR_${i}__`, a);
+    });
 
     return <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }} />;
   };
@@ -118,12 +139,12 @@ function Chat() {
             renderMessageContent={renderMessageContent}
           />
           <div className="input-container">
+            <button className="rsvp-button" onClick={() => setIsRsvpOpen(true)}>OSA</button>
             <ChatInput
               input={input}
               setInput={setInput}
               handleSendMessage={handleSendMessage}
             />
-            <button className="rsvp-button" onClick={() => setIsRsvpOpen(true)}>OSA</button>
           </div>
         </>
       )}
