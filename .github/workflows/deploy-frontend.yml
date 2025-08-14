@@ -1,4 +1,4 @@
-name: Deploy Frontend to GCS
+name: Deploy Frontend to Firebase
 
 on:
   push:
@@ -18,25 +18,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Auth to Google Cloud (WIF)
-        uses: google-github-actions/auth@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
-          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-
-      - name: Setup gcloud
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: ${{ vars.GCP_PROJECT_ID }}
-
-      - name: Ensure bucket exists and website config
-        run: |
-          gsutil ls -b gs://wedding-frontend-bucket || \
-            gcloud storage buckets create gs://wedding-frontend-bucket --location=europe-north2
-          gcloud storage buckets update gs://wedding-frontend-bucket \
-            --web-main-page-suffix=index.html --web-error-page=index.html
-          gcloud storage buckets add-iam-policy-binding gs://wedding-frontend-bucket \
-            --member=allUsers --role=roles/storage.objectViewer || true
+          node-version: 20
 
       - name: Install deps
         working-directory: frontend
@@ -48,16 +33,8 @@ jobs:
           VITE_BACKEND_URL: "https://wedding-backend-1039804058960.europe-north2.run.app"
         run: npm run build
 
-      - name: Upload to GCS
+      - name: Deploy to Firebase Hosting
+        working-directory: frontend
         run: |
-          set -e
-          # Sync the built app to the bucket root and delete removed files
-          gsutil -m rsync -r -d frontend/dist/ gs://wedding-frontend-bucket
-
-          # Cache policy: long cache for hashed assets, no-store for index.html
-          gsutil -m setmeta -h "Cache-Control:public, max-age=31536000, immutable" gs://wedding-frontend-bucket/assets/** || true
-          gsutil setmeta -h "Cache-Control:no-store" gs://wedding-frontend-bucket/index.html || true
-
-          # Debug listing
-          gsutil ls -r gs://wedding-frontend-bucket | head -n 50
-
+          npm install -g firebase-tools
+          firebase deploy --only hosting --token ${{ secrets.FIREBASE_TOKEN }}
