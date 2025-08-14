@@ -32,7 +32,7 @@ function Login({ onLogin }) {
         <h2>
           <TypewriterText text="Bea och Gabriels bröllop!" delay={75} />
         </h2>
-        <p>Var god ange det lösenord ni blivit tilldelade i er inbjudan.</p>
+        <p>Här kan du ställa frågor och OSA inför bröllopet. Var god ange det lösenord ni blivit tilldelade i er inbjudan.</p>
         <input
           type="password"
           value={password}

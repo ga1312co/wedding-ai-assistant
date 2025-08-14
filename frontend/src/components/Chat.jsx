@@ -18,6 +18,20 @@ function Chat() {
   const [isTyping, setIsTyping] = useState(false);
   const [isRsvpOpen, setIsRsvpOpen] = useState(false);
   const messagesEndRef = useRef(null);
+  const sessionIdRef = useRef(null);
+
+  if (!sessionIdRef.current) {
+    sessionIdRef.current = `sess_${Math.random().toString(16).slice(2)}${Date.now().toString(36)}`;
+  }
+
+  // Initial welcome message (no API call)
+  useEffect(() => {
+    if (messages.length === 0) {
+      const initial = { text: 'Hej! Jag är Cleo. Fråga mig vad du vill om bröllopet. Du skriver ditt meddelande i rutan nedanför.', sender: 'model' };
+      setMessages([initial]);
+      setBotMessage(initial.text);
+    }
+  }, []); // run once
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -59,10 +73,11 @@ function Chat() {
     setIsTyping(false);
 
     try {
-      const response = await sendMessage(input, messages.map(msg => ({
-        text: msg.text,
-        sender: msg.sender
-      })));
+      const response = await sendMessage(
+        input,
+        messages.map(msg => ({ text: msg.text, sender: msg.sender })),
+        sessionIdRef.current
+      );
       setBotMessage(response.text);
       setMessages((prevMessages) => [...prevMessages, { text: response.text, sender: 'model' }]);
     } catch (error) {
@@ -73,29 +88,13 @@ function Chat() {
   };
 
   const renderMessageContent = (text) => {
+    if (!text) return null;
     let content = text;
 
-    const imageMatch = content.match(/\[IMAGE:\s*(.*?) \]/);
-    if (imageMatch) {
-      const imageUrl = imageMatch[1];
-      content = content.replace(imageMatch[0], `<img src="${imageUrl}" alt="Wedding Image" style="max-width:100%; height:auto; border-radius: 8px; margin-top: 10px;" />`);
-    }
-
-    const mapMatch = content.match(/\[MAP:\s*(.*?) \]/);
-    if (mapMatch) {
-      const address = mapMatch[1];
-      const encodedAddress = encodeURIComponent(address);
-      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
-      content = content.replace(mapMatch[0], `<a href="${mapsUrl}" target="_blank" rel="noopener noreferrer">View Map for ${address}</a>`);
-    }
-
-    // Regex to find RICH_CONTENT links and make them clickable, replacing the preceding text
-    const richContentRegex = /(via den här länken: )?\[RICH_CONTENT:{"type":"rsvp_card","data":{"deadline":"(.*?)","link":"(.*?)"}}\]/g;
-    content = content.replace(richContentRegex, `<a href="$3" target="_blank" rel="noopener noreferrer">Anmälningslänk</a>`);
-
-    // Regex to find general URLs and make them clickable
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    content = content.replace(urlRegex, `<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>`);
+    // Convert plain URLs to clickable links (ignore if already inside an anchor)
+    content = content.replace(/(?<!["'=])(https?:\/\/[^\s)<>"']+)/g, (m) => {
+      return `<a href="${m}" target="_blank" rel="noopener noreferrer">${m}</a>`;
+    });
 
     return <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }} />;
   };
