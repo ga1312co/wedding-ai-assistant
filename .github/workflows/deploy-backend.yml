@@ -46,7 +46,9 @@ jobs:
           cat > env.yaml <<'EOF'
           GEMINI_API_KEY: "${{ secrets.GEMINI_API_KEY }}"
           LOGIN_PASSWORD: "${{ secrets.LOGIN_PASSWORD }}"
-          CORS_ORIGIN: "https://storage.googleapis.com"
+          # Set this in GitHub → Settings → Secrets and variables → Actions → Variables
+          # Example value: https://wedding-assistant.web.app,https://wedding-assistant.firebaseapp.com
+          CORS_ORIGIN: "${{ vars.FRONTEND_ORIGIN || 'https://wedding-assistant.web.app,https://wedding-assistant.firebaseapp.com' }}"
           EOF
 
       - name: Deploy to Cloud Run
