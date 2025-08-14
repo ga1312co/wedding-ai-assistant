@@ -13,7 +13,7 @@ function ExpandedChatHistory({
       <div className="history-messages">
         {messages.map((msg, index) => (
           <div key={index} className={`history-message ${msg.sender}`}>
-            <strong>{msg.sender === 'user' ? 'You:' : 'AI:'}</strong> {renderMessageContent(msg.text)}
+            <strong>{msg.sender === 'user' ? 'You:' : 'Cleo:'}</strong> {renderMessageContent(msg.text)}
           </div>
         ))}
       </div>
