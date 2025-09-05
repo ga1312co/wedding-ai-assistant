@@ -45,6 +45,7 @@ function Login({ onLogin }) {
 
       <div className="login-form-container">
         <form onSubmit={handleSubmit} className="login-form">
+          {error && <p className="error-message">{error}</p>}
           <label htmlFor="password">Lösenord:</label>
           <input
             id="password"
@@ -53,7 +54,6 @@ function Login({ onLogin }) {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          {error && <p className="error-message">{error}</p>}
         </form>
       </div>
     </div>
