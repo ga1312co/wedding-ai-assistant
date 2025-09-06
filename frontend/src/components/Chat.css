@@ -88,7 +88,7 @@ html, body, #root, .App {
     max-width: 400px;
     min-width: 200px;
     min-height: 40px;
-    max-height: calc(100vh - 400px); /* Constrain to viewport minus space for cats and input */
+    max-height: calc(100vh - 400px); /* default; overridden on phones to 100dvh */
     text-align: center;
     color: #333;
     word-break: break-word;
@@ -117,7 +117,7 @@ html, body, #root, .App {
     top: 50px; /* Position from top instead of bottom */
     left: 90%;
     transform: translateX(-50%);
-    max-height: calc(100vh - 450px); /* Leave space for cats (300px) + input (100px) + padding (50px) */
+    max-height: calc(100vh - 450px); /* overridden on phones to 100dvh */
 }
 
 /* User Speech Bubble Specific Styles (Last Prompt) */
@@ -280,5 +280,26 @@ html, body, #root, .App {
 @media (max-width: 600px) {
     .ai-bubble {
         left: 60%; /* Move more left on smaller screens */
+    }
+}
+
+/* Phone-specific adjustments: move bubbles higher and use dynamic viewport */
+@media (max-width: 480px) {
+    /* Allow more vertical space by basing on dynamic viewport height */
+    .speech-bubble {
+        max-width: 88vw;
+        max-height: calc(100dvh - 340px);
+    }
+
+    .ai-bubble {
+        /* Keep the AI bubble near the top without large empty space */
+        top: clamp(8px, 6svh, 40px);
+        left: 75%;
+        max-height: calc(100dvh - 380px);
+    }
+
+    .user-bubble {
+        /* Raise the last user message higher so less top area is empty */
+        bottom: clamp(140px, 24svh, 260px);
     }
 }
