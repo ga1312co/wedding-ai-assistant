@@ -6,7 +6,7 @@
   /* Fallback first, then dynamic viewport to account for iOS URL bar */
   min-height: 100vh;
   min-height: 100dvh;
-  background-color: #ffffff;
+  background-color: #d8d1c8;
   font-family: 'Arial', sans-serif;
   /* Allow vertical scroll on small screens */
   overflow-x: hidden;
