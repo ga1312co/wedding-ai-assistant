@@ -239,7 +239,7 @@
 
   /* The letter sits a bit lower by default. Reduce offset on phones */
   .letter {
-    top: 16%;
+    top: 20%;
     max-width: 100%;
   }
 
