@@ -6,7 +6,7 @@
   /* Fallback first, then dynamic viewport to account for iOS URL bar */
   min-height: 100vh;
   min-height: 100dvh;
-  background-color: #ffffff;
+  background-color: #d8d1c8;
   font-family: 'Arial', sans-serif;
   /* Allow vertical scroll on small screens */
   overflow-x: hidden;
@@ -24,6 +24,9 @@
   z-index: 0;
   /* Move the interior texture up/down without changing geometry */
   --envbg-offset: 8px;
+  /* Letter reveal controls (used on hover) */
+  --letter-raise: 300px;
+  --letter-scale: 1.6;
   /* Simple first paint guard: fade in envelope to avoid initial flicker */
   opacity: 0;
   pointer-events: none;
@@ -155,7 +158,7 @@
 
 .wrapper:hover .letter {
   /* Stage 2: raise letter only (no scale yet) */
-  transform: translateY(-300px);
+  transform: translateY(calc(-1 * var(--letter-raise, 300px)));
   transition-delay: 0.15s; /* raise early on hover-in */
   /* Stage 3 begins at 0.35s: bump z-index only then */
   animation: raiseZ 0s 0.35s forwards;
@@ -167,7 +170,7 @@
 
 .wrapper:hover .letter-inner {
   /* Stage 3: scale up letter */
-  transform: translateY(300px) scale(1.6);
+  transform: translateY(var(--letter-raise, 300px)) scale(var(--letter-scale, 1.6));
   position: relative;
   z-index: 6; /* above base and lids */
   will-change: transform;
@@ -229,11 +232,21 @@
     bottom: auto;
     margin: clamp(16px, 10svh, 72px) auto clamp(40px, 14svh, 120px);
     width: min(94vw, 460px);
+    /* Softer letter reveal to avoid overflow */
+    --letter-raise: min(26svh, 220px);
+    --letter-scale: 1.18;
   }
 
   /* The letter sits a bit lower by default. Reduce offset on phones */
   .letter {
-    top: 10%;
+    top: 20%;
+    max-width: 100%;
+  }
+
+  /* Ensure inner content never exceeds envelope width */
+  .letter-inner {
+    max-width: 100%;
+    margin: 0 auto;
   }
 
   /* Keep the login visible and reachable above the iOS bottom bar */
@@ -253,5 +266,10 @@
   }
   .login-form input[type="password"] {
     width: 100px;
+  }
+  /* Error message smaller on phones */
+  .error-message {
+    font-size: 9px;
+    max-width: 400px;
   }
 }
