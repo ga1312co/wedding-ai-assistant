@@ -3,10 +3,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  /* Fallback first, then dynamic viewport to account for iOS URL bar */
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: #ffffff;
   font-family: 'Arial', sans-serif;
-  overflow: hidden;
+  /* Allow vertical scroll on small screens */
+  overflow-x: hidden;
+  overflow-y: auto;
   position: relative;
 }
 
@@ -15,7 +19,7 @@
   width: min(92vw, 500px); /* scale down on narrow screens */
   height: auto; /* let the base image set the height */
   position: absolute;
-  bottom: 1%; /* lift above bottom edge */
+  bottom: 1%; /* default desktop/tablet: near bottom for nice staging */
   display: block;
   z-index: 0;
   /* Move the interior texture up/down without changing geometry */
@@ -184,7 +188,7 @@
   position: absolute;
   bottom: 10px;
   right: 10px;
-  z-index: 5;
+  z-index: 10;
 }
 
 .login-form {
@@ -219,9 +223,33 @@
 
 /* Responsive tweaks for very narrow screens */
 @media (max-width: 480px) {
+  /* Center envelope higher on phones and allow scroll below */
+  .wrapper {
+    position: relative;
+    bottom: auto;
+    margin: clamp(16px, 10svh, 72px) auto clamp(40px, 14svh, 120px);
+    width: min(94vw, 460px);
+  }
+
+  /* The letter sits a bit lower by default. Reduce offset on phones */
+  .letter {
+    top: 10%;
+  }
+
+  /* Keep the login visible and reachable above the iOS bottom bar */
+  .login-form-container {
+    position: fixed;
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+    z-index: 20;
+  }
+
   .login-form {
     gap: 6px;
     padding: 8px;
+    background-color: rgba(255, 255, 255, 0.92);
   }
   .login-form input[type="password"] {
     width: 100px;
