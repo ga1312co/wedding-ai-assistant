@@ -233,7 +233,7 @@
 
   /* The letter sits a bit lower by default. Reduce offset on phones */
   .letter {
-    top: 10%;
+    top: 20%;
   }
 
   /* Keep the login visible and reachable above the iOS bottom bar */
