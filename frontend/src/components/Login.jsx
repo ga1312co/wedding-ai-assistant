@@ -7,6 +7,7 @@ import envelopeBase from '../assets/envelope_textured.png';
 function Login({ onLogin }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [hadInteraction, setHadInteraction] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,7 +25,11 @@ function Login({ onLogin }) {
   return (
     <div className="login-container">
       {/* Envelope wrapper with hidden image revealed on hover */}
-      <div className="wrapper" aria-label="Invitation envelope">
+      <div
+        className={`wrapper ${hadInteraction ? 'had-interaction' : ''}`}
+        aria-label="Invitation envelope"
+        onMouseEnter={() => setHadInteraction(true)}
+      >
         {/* Animated top lid */}
         <div className="lid one"></div>
         <div className="lid two"></div>

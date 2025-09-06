@@ -1,3 +1,4 @@
+
 .login-container {
   display: flex;
   justify-content: center;
@@ -19,6 +20,17 @@
   z-index: 0;
   /* Move the interior texture up/down without changing geometry */
   --envbg-offset: 8px;
+  /* Simple first paint guard: fade in envelope to avoid initial flicker */
+  opacity: 0;
+  pointer-events: none;
+  animation: envelopeFadeIn 220ms ease 120ms forwards;
+}
+
+@keyframes envelopeFadeIn {
+  to {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 /* Envelope lids (full-width triangle aligned to envelope opening) */
@@ -107,6 +119,8 @@
   z-index: 2; /* behind envelope base by default */
   transition: transform 0.35s ease 0.35s; /* on hover-out, wait for shrink, then move down */
   transform-origin: center bottom;
+  /* Fade the letter in slightly after the envelope to avoid initial pop */
+  
 }
 
 /* inner wrapper to scale later (stage 3) */
@@ -157,7 +171,7 @@
 }
 
 /* Hover-out: keep letter above while shrinking, then drop below and slide in */
-.wrapper:not(:hover) .letter {
+.wrapper.had-interaction:not(:hover) .letter {
   /* Hold z-index high during shrink, then lower after 0.35s */
   animation: holdZ 0s 0.35s backwards, lowerZ 0s 0.35s forwards;
 }
@@ -199,7 +213,8 @@
 .error-message {
   color: #d32f2f;
   font-size: 12px;
-  white-space: nowrap;
+  /* Allow \n in strings to render as line breaks */
+  white-space: pre-line;
 }
 
 /* Responsive tweaks for very narrow screens */
