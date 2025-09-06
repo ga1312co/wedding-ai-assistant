@@ -1,17 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { login } from '../services/api';
-import TypewriterText from './TypewriterText'; // Import the new component
 import './Login.css';
+import bjerredsImage from '../assets/Bjerreds.png';
+import envelopeBase from '../assets/envelope_textured.png';
 
 function Login({ onLogin }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [inputAnimated, setInputAnimated] = useState(false);
-
-  useEffect(() => {
-    // Trigger input animation on component mount
-    setInputAnimated(true);
-  }, []);
+  const [hadInteraction, setHadInteraction] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,22 +24,43 @@ function Login({ onLogin }) {
 
   return (
     <div className="login-container">
-      <form onSubmit={handleSubmit} className="login-form">
-        <h2>
-          <TypewriterText text="Bea och Gabriels bröllop!" delay={75} />
-        </h2>
-        <p>Här kan du ställa frågor och OSA inför bröllopet. Var god ange det lösenord ni blivit tilldelade i er inbjudan.</p>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Ange lösenord"
-          required
-          className={inputAnimated ? 'input-slide-in' : ''}
-        />
-        <button type="submit">Logga in</button>
-        {error && <p className="error-message">{error}</p>}
-      </form>
+      {/* Envelope wrapper with hidden image revealed on hover */}
+      <div
+        className={`wrapper ${hadInteraction ? 'had-interaction' : ''}`}
+        aria-label="Invitation envelope"
+        onMouseEnter={() => setHadInteraction(true)}
+      >
+        {/* Animated top lid */}
+        <div className="lid one"></div>
+        <div className="lid two"></div>
+
+        {/* Background behind contents (clipped to envelope interior) */}
+        <div className="envelope-bg" aria-hidden="true"></div>
+
+        {/* Static envelope base image (minus the lid) */}
+        <img className="envelope-img" src={envelopeBase} alt="Envelope" />
+
+        {/* Letter/image inside the envelope */}
+        <div className="letter">
+          <div className="letter-inner">
+            <img src={bjerredsImage} alt="Bjerreds" />
+          </div>
+        </div>
+      </div>
+
+      <div className="login-form-container">
+        <form onSubmit={handleSubmit} className="login-form">
+          {error && <p className="error-message">{error}</p>}
+          <label htmlFor="password">Lösenord:</label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </form>
+      </div>
     </div>
   );
 }

@@ -53,7 +53,7 @@ const login = (req, res) => {
   const remaining = MAX_FAILS - entry.fails + 1; // +1 because ban applies after exceeding MAX_FAILS
   console.log(`Login fail ${entry.fails} for IP ${ip} (remaining before ban: ${remaining})`);
   return res.status(401).json({
-    message: `Fel lösenord. Du har ${remaining} försök kvar innan du blockeras i 24 timmar.`
+    message: `Lösenord kommer med inbjudan.\n ${remaining} försök kvar innan 24h blockering.`
   });
 };
 
