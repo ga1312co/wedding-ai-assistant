@@ -14,6 +14,10 @@ html, body, #root, .App {
     align-items: center;
     justify-content: flex-end; /* Pushes content to the bottom */
     position: relative;
+    /* Layout variables; tuned per breakpoint */
+    --top-pad: 50px;            /* distance from top for AI bubble (desktop) */
+    --gap-to-user: 50px;        /* desired gap between AI and user bubbles */
+    --input-stack: 100px;       /* approx input area + bottom padding (desktop) */
 }
 
 .chat-container::before {
@@ -95,6 +99,7 @@ html, body, #root, .App {
     white-space: pre-line;
     overflow-wrap: break-word;
     overflow-y: auto;
+    box-sizing: border-box; /* keep padding inside width */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -114,15 +119,16 @@ html, body, #root, .App {
 
 /* AI Speech Bubble Specific Styles */
 .ai-bubble {
-    top: 50px; /* Position from top instead of bottom */
+    top: var(--top-pad); /* Position from top instead of bottom */
     left: 90%;
     transform: translateX(-50%);
-    max-height: calc(100vh - 450px); /* overridden on phones to 100dvh */
+    /* Constrain so it leaves space for the user bubble + input */
+    max-height: calc(100vh - var(--top-pad) - var(--input-stack) - var(--gap-to-user)); /* overridden on phones */
 }
 
 /* User Speech Bubble Specific Styles (Last Prompt) */
 .user-bubble {
-    bottom: 100px; /* Above the input area */
+    bottom: var(--input-stack); /* Sit immediately above the input area */
     left: 50%; /* Center horizontally */
     transform: translateX(-50%);
     flex-direction: row; /* Align button and text horizontally */
@@ -285,21 +291,40 @@ html, body, #root, .App {
 
 /* Phone-specific adjustments: move bubbles higher and use dynamic viewport */
 @media (max-width: 480px) {
-    /* Allow more vertical space by basing on dynamic viewport height */
-    .speech-bubble {
-        max-width: 88vw;
-        max-height: calc(100dvh - 340px);
+    /* Tune layout variables for phones */
+    .chat-container {
+        --top-pad: clamp(8px, 5svh, 24px);
+        /* Height of RSVP+input row (~64px) + margin + safe-area */
+        --input-stack: calc(84px + env(safe-area-inset-bottom, 0px));
+        --gap-to-user: 350px;
     }
 
+    .input-container {
+        min-height: 64px;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    /* Allow more vertical space basing on dynamic viewport height */
+    .speech-bubble {
+        max-width: min(92vw, 520px);
+        box-sizing: border-box;
+        overflow-y: auto;
+        /* Max height leaves room for user bubble + input */
+        max-height: calc(100dvh - env(safe-area-inset-top, 0px) - (var(--input-stack) + var(--gap-to-user)) - 8px);
+    }
+
+    /* Bottom-anchor AI bubble so it grows upward and stays centered */
     .ai-bubble {
-        /* Keep the AI bubble near the top without large empty space */
-        top: clamp(8px, 6svh, 40px);
-        left: 75%;
-        max-height: calc(100dvh - 380px);
+        position: fixed;
+        top: auto;
+        bottom: calc(var(--input-stack) + var(--gap-to-user));
+        left: 50%;
+        transform: translateX(-50%);
+        right: auto;
+        max-width: min(92vw, 520px);
     }
 
     .user-bubble {
-        /* Raise the last user message higher so less top area is empty */
-        bottom: clamp(140px, 24svh, 260px);
+        bottom: var(--input-stack);
     }
 }
