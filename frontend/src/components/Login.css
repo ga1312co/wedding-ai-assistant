@@ -4,7 +4,7 @@
   align-items: center;
   min-height: 100vh;
   min-height: 100dvh;
-  background-color: #d8d1c8;
+  background: linear-gradient(135deg, #a3a3a3, #b19b87);
   font-family: 'Garamond', 'Times New Roman', serif;
   overflow-x: hidden;
   overflow-y: auto;
