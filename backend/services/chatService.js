@@ -17,6 +17,7 @@ const createSession = () => {
     }),
     answers: 0,
     sleepPrompted: false,
+    rsvpPrompted: false,
   };
 };
 
@@ -53,11 +54,33 @@ const chat = async (sessionId, history, userMessage) => {
       const response = await result.response;
       let text = response.text();
 
+      // Part 1: Handle RSVP state
+      // Check if model already included RSVP
+      if (!entry.rsvpPrompted) {
+        const rsvpRegex = /osa|rsvp|anmälan|anmäla/i;
+        if (rsvpRegex.test(text)) {
+          entry.rsvpPrompted = true;
+        }
+      }
       entry.answers++;
 
-      if (!entry.sleepPrompted && shouldPromptSleep(entry.answers, userMessage)) {
+      // Force RSVP after 3 answers if not already prompted
+      if (entry.answers >= 3 && !entry.rsvpPrompted) {
+        const rsvpLink = "https://forms.gle/8c7ArAeDAfadrXwU8";
+        text += `\n\nPsst, glöm inte att OSA! Du kan göra det här: ${rsvpLink}`;
+        entry.rsvpPrompted = true;
+      }
+
+      // Part 2: Handle Sleep state (now blocked by RSVP)
+      if (!entry.sleepPrompted && entry.rsvpPrompted && shouldPromptSleep(entry.answers, userMessage)) {
         entry.sleepPrompted = true;
-        text += '\n\nJag börjar bli lite trött... får jag ta en liten tupplur?';
+        
+        // Use special "early" sleep message between 2 and 4 answers
+        if (entry.answers >= 2 && entry.answers <= 4) {
+             text += `\n\nzzZZz... Glöm inte att OSA... zzzZZZZ...`;
+        } else {
+            text += `\n\nJag börjar bli lite trött... får jag ta en liten tupplur?`;
+        }
       }
 
       return text;
