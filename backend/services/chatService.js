@@ -18,6 +18,7 @@ const createSession = () => {
     answers: 0,
     sleepPrompted: false,
     rsvpPrompted: false,
+    isAwaitingSleepResponse: false,
   };
 };
 
@@ -47,6 +48,23 @@ const chat = async (sessionId, history, userMessage) => {
   const entry = getOrCreateSession(sessionId);
   const { session } = entry;
 
+  // Check if we are waiting for the user's permission to sleep.
+  if (entry.isAwaitingSleepResponse) {
+    const affirmative = /ja|ok|visst|säkert|vila du/i.test(userMessage);
+    entry.isAwaitingSleepResponse = false; // Reset flag immediately
+
+    if (affirmative) {
+      // If user agrees, respond with a sleep message.
+      // Use the special "early" message if appropriate.
+      if (entry.answers <= 4) {
+        return "zzZZz... Glöm inte att OSA... zzzZZZZ...";
+      } else {
+        return "ZzzZzz...";
+      }
+    }
+    // If user does not agree, we fall through and treat it as a normal message.
+  }
+
   const maxAttempts = 3;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
@@ -55,7 +73,6 @@ const chat = async (sessionId, history, userMessage) => {
       let text = response.text();
 
       // Part 1: Handle RSVP state
-      // Check if model already included RSVP
       if (!entry.rsvpPrompted) {
         const rsvpRegex = /osa|rsvp|anmälan|anmäla/i;
         if (rsvpRegex.test(text)) {
@@ -64,23 +81,17 @@ const chat = async (sessionId, history, userMessage) => {
       }
       entry.answers++;
 
-      // Force RSVP after 3 answers if not already prompted
       if (entry.answers >= 3 && !entry.rsvpPrompted) {
-        const rsvpLink = "https://forms.gle/8c7ArAeDAfadrXwU8";
-        text += `\n\nPsst, glöm inte att OSA! Du kan göra det här: ${rsvpLink}`;
+        text += `\n\nPsst, glöm inte att OSA! Du gör det genom att klicka på den gröna knappen.`;
         entry.rsvpPrompted = true;
       }
 
-      // Part 2: Handle Sleep state (now blocked by RSVP)
+      // Part 2: Handle Sleep state (blocked by RSVP)
       if (!entry.sleepPrompted && entry.rsvpPrompted && shouldPromptSleep(entry.answers, userMessage)) {
         entry.sleepPrompted = true;
+        entry.isAwaitingSleepResponse = true; // Set the flag that we've asked
         
-        // Use special "early" sleep message between 2 and 4 answers
-        if (entry.answers >= 2 && entry.answers <= 4) {
-             text += `\n\nzzZZz... Glöm inte att OSA... zzzZZZZ...`;
-        } else {
-            text += `\n\nJag börjar bli lite trött... får jag ta en liten tupplur?`;
-        }
+        text += `\n\nJag börjar bli lite trött... får jag ta en liten tupplur?`;
       }
 
       return text;
