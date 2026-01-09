@@ -24,27 +24,32 @@ filesToCopy.forEach(file => {
     fs.writeFileSync(path.join(distDir, file), content);
 });
 
-// Copy assets folder
-const assetsDir = path.join(srcDir, 'assets');
-const distAssetsDir = path.join(distDir, 'assets');
-fs.mkdirSync(distAssetsDir, { recursive: true });
-
-if (fs.existsSync(assetsDir)) {
-    fs.readdirSync(assetsDir).forEach(file => {
-        fs.copyFileSync(path.join(assetsDir, file), path.join(distAssetsDir, file));
+// Helper function to copy directory recursively
+function copyDirRecursive(src, dest) {
+    if (!fs.existsSync(src)) return;
+    fs.mkdirSync(dest, { recursive: true });
+    fs.readdirSync(src).forEach(item => {
+        const srcPath = path.join(src, item);
+        const destPath = path.join(dest, item);
+        if (fs.statSync(srcPath).isDirectory()) {
+            copyDirRecursive(srcPath, destPath);
+        } else {
+            fs.copyFileSync(srcPath, destPath);
+        }
     });
 }
+
+// Copy styles folder (CSS modules)
+copyDirRecursive(path.join(srcDir, 'styles'), path.join(distDir, 'styles'));
+
+// Copy js folder (JS modules)
+copyDirRecursive(path.join(srcDir, 'js'), path.join(distDir, 'js'));
+
+// Copy assets folder
+copyDirRecursive(path.join(srcDir, 'assets'), path.join(distDir, 'assets'));
 
 // Copy public folder (favicon)
-const publicDir = path.join(srcDir, 'public');
-const distPublicDir = path.join(distDir, 'public');
-fs.mkdirSync(distPublicDir, { recursive: true });
-
-if (fs.existsSync(publicDir)) {
-    fs.readdirSync(publicDir).forEach(file => {
-        fs.copyFileSync(path.join(publicDir, file), path.join(distPublicDir, file));
-    });
-}
+copyDirRecursive(path.join(srcDir, 'public'), path.join(distDir, 'public'));
 
 // Create config.js with backend URL
 const configContent = `window.appConfig = { backendUrl: "${backendUrl}" };`;
