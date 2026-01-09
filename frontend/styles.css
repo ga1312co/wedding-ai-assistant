@@ -1,23 +1,92 @@
-html, body, #root, .App {
-    height: 100%;
+/* Base styles */
+body, html {
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
+/* Login Page Styles */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: linear-gradient(135deg, #a3a3a3, #b19b87);
+    font-family: 'Garamond', 'Times New Roman', serif;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: relative;
+    color: #333;
+}
+
+.login-form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+}
+
+.login-form-container > span {
+    font-size: 2.5rem;
+    font-weight: 500;
+}
+
+.login-form {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.login-form label {
+    font-size: 1.1em;
+    color: #333;
+}
+
+.login-form input[type="password"] {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+    width: 200px;
+    text-align: center;
+}
+
+.error-message {
+    color: #d32f2f;
+    font-size: 0.9em;
+    margin-top: 5px;
+    white-space: pre-line;
+    max-width: 220px;
+    text-align: center;
+}
+
+/* Chat Container Styles */
 .chat-container {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    width: 100vw;
     background-color: #c96d3a;
     align-items: center;
-    justify-content: flex-end; /* Pushes content to the bottom */
+    justify-content: flex-end;
     position: relative;
-    /* Layout variables; tuned per breakpoint */
-    --top-pad: 50px;            /* distance from top for AI bubble (desktop) */
-    --gap-to-user: 50px;        /* desired gap between AI and user bubbles */
-    --input-stack: 100px;       /* approx input area + bottom padding (desktop) */
+    --top-pad: 50px;
+    --gap-to-user: 50px;
+    --input-stack: 100px;
+    overflow: hidden;
 }
 
 .chat-container::before {
@@ -45,12 +114,11 @@ html, body, #root, .App {
 .cats-image-container {
     position: relative;
     max-height: 600px;
-    max-width: 600px; /* Prevents image from becoming too large */
+    max-width: 600px;
     z-index: 3;
-    bottom: 0px; /* Position above the floor */
+    bottom: 0px;
 }
 
-/* New layered images */
 .sofa-image {
     width: 100%;
     height: auto;
@@ -60,29 +128,29 @@ html, body, #root, .App {
 
 .cleo-image {
     position: absolute;
-    bottom: 29%; /* Sit on the sofa base */
+    bottom: 29%;
     left: 64%;
     transform: translateX(-50%);
-    max-width: 40%; /* Adjust size of Cleo relative to sofa */
+    max-width: 40%;
     height: auto;
     z-index: 3;
     scale: 0.8;
-    pointer-events: none; /* clicks pass through */
+    pointer-events: none;
 }
+
 .cleo-sleeping-image {
     position: absolute;
-    bottom: 21%; /* Sit on the sofa base */
+    bottom: 21%;
     left: 64%;
     transform: translateX(-50%);
-    max-width: 40%; /* Adjust size of Cleo relative to sofa */
+    max-width: 40%;
     height: auto;
     z-index: 3;
     scale: 0.8;
-    pointer-events: none; /* clicks pass through */
+    pointer-events: none;
 }
 
-
-/* Base Speech Bubble Styles */
+/* Speech Bubble Base Styles */
 .speech-bubble {
     position: absolute;
     background-color: #ffffff;
@@ -92,14 +160,14 @@ html, body, #root, .App {
     max-width: 400px;
     min-width: 200px;
     min-height: 40px;
-    max-height: calc(100vh - 400px); /* default; overridden on phones to 100dvh */
+    max-height: calc(100vh - 400px);
     text-align: center;
     color: #333;
     word-break: break-word;
     white-space: pre-line;
     overflow-wrap: break-word;
     overflow-y: auto;
-    box-sizing: border-box; /* keep padding inside width */
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -117,21 +185,20 @@ html, body, #root, .App {
     opacity: 0 !important;
 }
 
-/* AI Speech Bubble Specific Styles */
+/* AI Speech Bubble */
 .ai-bubble {
-    top: var(--top-pad); /* Position from top instead of bottom */
+    top: var(--top-pad);
     left: 90%;
     transform: translateX(-50%);
-    /* Constrain so it leaves space for the user bubble + input */
-    max-height: calc(100vh - var(--top-pad) - var(--input-stack) - var(--gap-to-user)); /* overridden on phones */
+    max-height: calc(100vh - var(--top-pad) - var(--input-stack) - var(--gap-to-user));
 }
 
-/* User Speech Bubble Specific Styles (Last Prompt) */
+/* User Speech Bubble */
 .user-bubble {
-    bottom: var(--input-stack); /* Sit immediately above the input area */
-    left: 50%; /* Center horizontally */
+    bottom: var(--input-stack);
+    left: 50%;
     transform: translateX(-50%);
-    flex-direction: row; /* Align button and text horizontally */
+    flex-direction: row;
 }
 
 .expand-button {
@@ -141,9 +208,10 @@ html, body, #root, .App {
     cursor: pointer;
     color: #333;
     padding: 5px;
-    margin-right: 5px; /* Space between button and text */
+    margin-right: 5px;
 }
 
+/* Input Container */
 .input-container {
     position: relative;
     z-index: 4;
@@ -152,22 +220,21 @@ html, body, #root, .App {
     width: 100%;
     max-width: 500px;
     margin-bottom: 20px;
-    gap: 10px; /* Space between input area and RSVP button */
+    gap: 10px;
 }
 
-/* The floating input area */
 .input-area {
     position: relative;
     display: flex;
     align-items: center;
-    flex-grow: 1; /* Take up remaining space */
+    flex-grow: 1;
     background: none;
     border: none;
 }
 
 .input-area input {
     flex-grow: 1;
-    padding: 18px 60px 18px 25px; /* Back to original padding */
+    padding: 18px 60px 18px 25px;
     border: none;
     border-radius: 30px;
     font-size: 16px;
@@ -184,7 +251,7 @@ html, body, #root, .App {
 
 .input-area button {
     position: absolute;
-    right: 10px; /* Position inside the input field */
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
     padding: 12px;
@@ -209,22 +276,22 @@ html, body, #root, .App {
 
 /* RSVP Button */
 .rsvp-button {
-  position: relative; /* inline within flex container */
-  background-color: #0baf0b;
-  color: white;
-  border: none;
-  border-radius: 30px;
-  cursor: pointer;
-  font-size: 14px;
-  padding: 12px 20px;
-  white-space: nowrap;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  flex-shrink: 0;
-  height: 54px; /* visually align with input height (approx padding + font) */
-  display: flex;
-  align-items: center;
-  margin-right: 8px;
-  z-index: 1; /* no longer needs large stacking */
+    position: relative;
+    background-color: #0baf0b;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 12px 20px;
+    white-space: nowrap;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    flex-shrink: 0;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+    z-index: 1;
 }
 
 /* Expanded Chat History */
@@ -238,9 +305,9 @@ html, body, #root, .App {
     padding: 20px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
     max-width: 80%;
-    max-height: calc(100% - 200px); /* Adjust height to not cover cats.png */
+    max-height: calc(100% - 200px);
     overflow-y: auto;
-    z-index: 6; /* Above cats.png and other bubbles */
+    z-index: 6;
     display: flex;
     flex-direction: column;
 }
@@ -282,19 +349,87 @@ html, body, #root, .App {
     color: #333;
 }
 
+/* RSVP Modal */
+.rsvp-modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.rsvp-modal-content {
+    background-color: #fefefe;
+    padding: 0;
+    border: 1px solid #888;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 10px;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px;
+}
+
+.rsvp-modal-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f1f1f1;
+    border-bottom: 1px solid #ddd;
+}
+
+.rsvp-modal-header h2 {
+    margin: 0;
+}
+
+.close {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.rsvp-modal-content iframe {
+    flex-grow: 1;
+    border: none;
+}
+
+/* Messages container (hidden, used for scrolling reference) */
+.messages {
+    display: none;
+}
+
 /* Media queries for responsive positioning */
 @media (max-width: 600px) {
     .ai-bubble {
-        left: 60%; /* Move more left on smaller screens */
+        left: 60%;
     }
 }
 
-/* Phone-specific adjustments: move bubbles higher and use dynamic viewport */
 @media (max-width: 480px) {
-    /* Tune layout variables for phones */
+    .login-form-container > span {
+        font-size: 2rem;
+    }
+    .login-form {
+        padding: 15px;
+    }
+    
     .chat-container {
         --top-pad: clamp(8px, 5svh, 24px);
-        /* Height of RSVP+input row (~64px) + margin + safe-area */
         --input-stack: calc(84px + env(safe-area-inset-bottom, 0px));
         --gap-to-user: 350px;
     }
@@ -304,16 +439,13 @@ html, body, #root, .App {
         padding-bottom: env(safe-area-inset-bottom, 0px);
     }
 
-    /* Allow more vertical space basing on dynamic viewport height */
     .speech-bubble {
         max-width: min(92vw, 520px);
         box-sizing: border-box;
         overflow-y: auto;
-        /* Max height leaves room for user bubble + input */
         max-height: calc(100dvh - env(safe-area-inset-top, 0px) - (var(--input-stack) + var(--gap-to-user)) - 8px);
     }
 
-    /* Bottom-anchor AI bubble so it grows upward and stays centered */
     .ai-bubble {
         position: fixed;
         top: auto;
@@ -326,5 +458,12 @@ html, body, #root, .App {
 
     .user-bubble {
         bottom: var(--input-stack);
+    }
+}
+
+@media (min-width: 768px) {
+    .rsvp-modal-content {
+        margin-left: 50px;
+        max-width: 600px;
     }
 }
