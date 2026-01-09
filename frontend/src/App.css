@@ -1,6 +1,0 @@
-.App {
-  /* Fallback first, then dynamic viewport units for mobile */
-  min-height: 100vh;
-  min-height: 100dvh;
-  width: 100vw;
-}

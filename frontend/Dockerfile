@@ -3,11 +3,16 @@ FROM node:20-alpine as build
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+COPY package.json ./
+COPY build.js ./
+COPY index.html styles.css app.js ./
+COPY assets ./assets
+COPY public ./public
 
-COPY . .
-RUN npm run build
+ARG VITE_BACKEND_URL
+ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
+
+RUN node build.js
 
 # Serve Stage
 FROM nginx:stable-alpine

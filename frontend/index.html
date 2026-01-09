@@ -2,13 +2,71 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/cleo.png" />
+    <link rel="icon" type="image/png" href="public/cleo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cleos bröllopshörna</title>
-    <!-- <script src="/config.js"></script> --> <!-- Remove or comment out for dev -->
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <!-- Login Page -->
+    <div id="login-container" class="login-container">
+      <div class="login-form-container">
+        <span id="typewriter-title" class="typewriter-text"></span>
+        <form id="login-form" class="login-form">
+          <label for="password">Lösenord:</label>
+          <input id="password" type="password" required />
+          <p id="error-message" class="error-message" style="display: none;"></p>
+        </form>
+      </div>
+    </div>
+
+    <!-- Chat Page (hidden initially) -->
+    <div id="chat-container" class="chat-container" style="display: none;">
+      <div class="messages" id="messages-container"></div>
+      
+      <!-- AI Speech Bubble -->
+      <div class="cats-image-container">
+        <div id="ai-bubble" class="speech-bubble ai-bubble">
+          <span id="ai-bubble-content"></span>
+        </div>
+        <img src="assets/sofa.png" alt="Soffa" class="sofa-image" />
+        <img id="cleo-image" src="assets/cleo.png" alt="Cleo" class="cleo-image" />
+      </div>
+      <div class="floor"></div>
+      
+      <!-- User Speech Bubble (Last Message) -->
+      <div id="user-bubble" class="speech-bubble user-bubble" style="opacity: 0;">
+        <button id="expand-button" class="expand-button">☰</button>
+        <span id="user-bubble-content"></span>
+      </div>
+      
+      <!-- Input Container -->
+      <div class="input-container">
+        <button id="rsvp-button" class="rsvp-button">OSA</button>
+        <div class="input-area">
+          <input type="text" id="chat-input" placeholder="Fråga mig om bröllopet..." />
+          <button id="send-button">➾</button>
+        </div>
+      </div>
+      
+      <!-- Expanded Chat History Modal -->
+      <div id="chat-history-modal" class="expanded-chat-history" style="display: none;">
+        <button id="minimize-history" class="minimize-button">✕</button>
+        <h2>Chat History</h2>
+        <div id="history-messages" class="history-messages"></div>
+      </div>
+      
+      <!-- RSVP Modal -->
+      <div id="rsvp-modal" class="rsvp-modal" style="display: none;">
+        <div class="rsvp-modal-content">
+          <div class="rsvp-modal-header">
+            <span id="rsvp-close" class="close">&times;</span>
+          </div>
+          <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdw7kRBP2pUa6Ka2b9HEZA-tRatiDqRDzB13EF_wHy7LE8n7A/viewform?embedded=true" width="100%" height="500" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
   </body>
 </html>

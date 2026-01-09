@@ -1,12 +1,48 @@
-# React + Vite
+# Wedding AI Assistant Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A lightweight vanilla HTML/CSS/JS frontend for the Wedding AI Assistant chatbot.
 
-Currently, two official plugins are available:
+## Features
+- No build tools required for development
+- Single page application with login and chat views
+- Typewriter text effect for bot messages
+- Chat history modal
+- RSVP modal with embedded Google Form
+- Sleep mode for the cat character
+- Responsive design for mobile and desktop
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Development
 
-## Expanding the ESLint configuration
+```bash
+# Install dependencies (optional, for the serve package)
+npm install
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+# Start development server
+npm run dev
+```
+
+Or simply open `index.html` in your browser, though you'll need a backend running for the API calls.
+
+## Production Build
+
+```bash
+# Set the backend URL environment variable
+export VITE_BACKEND_URL=https://your-backend-url.com
+
+# Build for production
+npm run build
+```
+
+The build script will:
+1. Copy all files to the `dist/` folder
+2. Create a `config.js` file with the backend URL
+3. Update `index.html` to include the config
+
+## Files
+
+- `index.html` - Main HTML structure
+- `styles.css` - All CSS styles (consolidated from React components)
+- `app.js` - All JavaScript functionality
+- `build.js` - Simple build script for production
+- `assets/` - Images (cat, sofa, etc.)
+- `public/` - Favicon and other public files
