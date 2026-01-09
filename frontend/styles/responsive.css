@@ -1,0 +1,54 @@
+/* Media queries for responsive positioning */
+@media (max-width: 600px) {
+    .ai-bubble {
+        left: 60%;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-form-container > span {
+        font-size: 2rem;
+    }
+    .login-form {
+        padding: 15px;
+    }
+    
+    .chat-container {
+        --top-pad: clamp(8px, 5svh, 24px);
+        --input-stack: calc(84px + env(safe-area-inset-bottom, 0px));
+        --gap-to-user: 350px;
+    }
+
+    .input-container {
+        min-height: 64px;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    .speech-bubble {
+        max-width: min(92vw, 520px);
+        box-sizing: border-box;
+        overflow-y: auto;
+        max-height: calc(100dvh - env(safe-area-inset-top, 0px) - (var(--input-stack) + var(--gap-to-user)) - 8px);
+    }
+
+    .ai-bubble {
+        position: fixed;
+        top: auto;
+        bottom: calc(var(--input-stack) + var(--gap-to-user));
+        left: 50%;
+        transform: translateX(-50%);
+        right: auto;
+        max-width: min(92vw, 520px);
+    }
+
+    .user-bubble {
+        bottom: var(--input-stack);
+    }
+}
+
+@media (min-width: 768px) {
+    .rsvp-modal-content {
+        margin-left: 50px;
+        max-width: 600px;
+    }
+}
