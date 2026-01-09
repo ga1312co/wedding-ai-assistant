@@ -22,14 +22,19 @@
     let chatInput, sendButton, expandButton, rsvpButton, rsvpModal, rsvpClose;
     let chatHistoryModal, minimizeHistory, historyMessages, cleoImage;
 
-    // Initialize session ID
-    function generateSessionId() {
-        return 'sess_' + Math.random().toString(16).slice(2) + Date.now().toString(36);
+    // Initialize session ID (persists during tab session using sessionStorage)
+    function getOrCreateSessionId() {
+        let storedSessionId = sessionStorage.getItem('weddingAssistantSessionId');
+        if (!storedSessionId) {
+            storedSessionId = 'sess_' + Math.random().toString(16).slice(2) + Date.now().toString(36);
+            sessionStorage.setItem('weddingAssistantSessionId', storedSessionId);
+        }
+        return storedSessionId;
     }
 
     // Initialize the app
     function init() {
-        sessionId = generateSessionId();
+        sessionId = getOrCreateSessionId();
         
         // Get DOM elements
         loginContainer = document.getElementById('login-container');
