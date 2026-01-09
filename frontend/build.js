@@ -13,7 +13,7 @@ const backendUrl = process.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
 // Create dist directory
 if (fs.existsSync(distDir)) {
-    fs.rmSync(distDir, { recursive: true });
+    fs.rmSync(distDir, { recursive: true, force: true });
 }
 fs.mkdirSync(distDir, { recursive: true });
 

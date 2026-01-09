@@ -337,14 +337,19 @@
     }
 
     // Sanitize and linkify text (similar to React version)
+    // This implementation escapes HTML first, then adds safe links
     function sanitizeAndLinkify(text) {
         if (!text) return '';
-        let content = text;
+        
+        // First, escape all HTML in the input to prevent XSS
+        let content = escapeHtml(text);
 
         // 1. Convert Markdown links [text](url) to plain anchor
+        // Pattern matches escaped brackets: [text](url)
         content = content.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, function(_m, label, url) {
-            return '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer">' + 
-                   escapeHtml(label === url ? url : label) + '</a>';
+            // URL and label are already escaped since we escaped the whole text first
+            return '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + 
+                   (label === url ? url : label) + '</a>';
         });
 
         // 2. Extract existing anchors to avoid double-linkifying
@@ -355,11 +360,9 @@
             return token;
         });
 
-        // 3. Linkify remaining plain URLs
-        content = content.replace(/(https?:\/\/[^\s)<>"']+)/g, function(m) {
-            // Check if this is inside a token
-            if (m.startsWith('__ANCHOR_')) return m;
-            return '<a href="' + escapeHtml(m) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(m) + '</a>';
+        // 3. Linkify remaining plain URLs (these are already escaped)
+        content = content.replace(/(https?:\/\/[^\s)<>"']+)/g, function(url) {
+            return '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + '</a>';
         });
 
         // 4. Restore anchors
@@ -367,9 +370,6 @@
             content = content.replace('__ANCHOR_' + i + '__', a);
         });
 
-        // Escape remaining HTML entities for safety (except our links)
-        // We need a more careful approach - escape first, then add links
-        // Actually, let's do a simpler approach
         return content;
     }
 
