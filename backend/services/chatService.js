@@ -17,6 +17,8 @@ const createSession = () => {
     }),
     answers: 0,
     sleepPrompted: false,
+    rsvpPrompted: false,
+    isAwaitingSleepResponse: false,
   };
 };
 
@@ -46,6 +48,23 @@ const chat = async (sessionId, history, userMessage) => {
   const entry = getOrCreateSession(sessionId);
   const { session } = entry;
 
+  // Check if we are waiting for the user's permission to sleep.
+  if (entry.isAwaitingSleepResponse) {
+    const affirmative = /ja|ok|visst|säkert|vila du/i.test(userMessage);
+    entry.isAwaitingSleepResponse = false; // Reset flag immediately
+
+    if (affirmative) {
+      // If user agrees, respond with a sleep message.
+      // Use the special "early" message if appropriate.
+      if (entry.answers <= 3) {
+        return "zzZZz... Glöm inte att OSA... zzzZZZZ...";
+      } else {
+        return "ZzzZzz...";
+      }
+    }
+    // If user does not agree, we fall through and treat it as a normal message.
+  }
+
   const maxAttempts = 3;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
@@ -53,11 +72,26 @@ const chat = async (sessionId, history, userMessage) => {
       const response = await result.response;
       let text = response.text();
 
+      // Part 1: Handle RSVP state
+      if (!entry.rsvpPrompted) {
+        const rsvpRegex = /osa|rsvp|anmälan|anmäla/i;
+        if (rsvpRegex.test(text)) {
+          entry.rsvpPrompted = true;
+        }
+      }
       entry.answers++;
 
-      if (!entry.sleepPrompted && shouldPromptSleep(entry.answers, userMessage)) {
+      if (entry.answers >= 3 && !entry.rsvpPrompted) {
+        text += `\n\nPsst, glöm inte att OSA! Du gör det genom att klicka på den gröna knappen.`;
+        entry.rsvpPrompted = true;
+      }
+
+      // Part 2: Handle Sleep state (blocked by RSVP)
+      if (!entry.sleepPrompted && entry.rsvpPrompted && shouldPromptSleep(entry.answers, userMessage)) {
         entry.sleepPrompted = true;
-        text += '\n\nJag börjar bli lite trött... får jag ta en liten tupplur?';
+        entry.isAwaitingSleepResponse = true; // Set the flag that we've asked
+        
+        text += `\n\nJag börjar bli lite trött... får jag ta en liten tupplur?`;
       }
 
       return text;

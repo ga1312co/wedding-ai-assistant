@@ -13,7 +13,7 @@ const path = require('path');
   }
 })();
 (function validateEnv() {
-  const required = ['LOGIN_PASSWORD', 'GEMINI_API_KEY'];
+  const required = ['GEMINI_API_KEY'];
   const missing = required.filter(k => !process.env[k]);
   if (missing.length) {
     console.warn('Startup warning: missing env vars:', missing.join(', '));

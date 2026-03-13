@@ -1,0 +1,21 @@
+/*
+ * Wedding AI Assistant - Main Stylesheet
+ * 
+ * This file imports all modular CSS files for better organization and maintainability.
+ * Each module handles a specific concern:
+ * - base.css: Reset and base element styles
+ * - login.css: Login page styles
+ * - chat.css: Chat container and scene styles
+ * - speech-bubble.css: Speech bubble components
+ * - input.css: Input area and button styles
+ * - modal.css: Modal dialogs (RSVP, chat history)
+ * - responsive.css: Media queries for responsive design
+ */
+
+@import url('styles/base.css');
+@import url('styles/login.css');
+@import url('styles/chat.css');
+@import url('styles/speech-bubble.css');
+@import url('styles/input.css');
+@import url('styles/modal.css');
+@import url('styles/responsive.css');

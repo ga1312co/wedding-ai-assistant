@@ -1,0 +1,72 @@
+/* Login Page Styles */
+.login-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: #fff;
+    font-family: 'Garamond', 'Times New Roman', serif;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: relative;
+    color: #873030;
+    gap: 40px;
+}
+
+.church-image {
+    width: 380px;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.login-form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 20px;
+    text-align: left;
+}
+
+.login-form-container > span {
+    font-size: 2.5rem;
+    font-weight: 500;
+    white-space: pre-line;
+}
+
+.login-form {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.login-form label {
+    font-size: 1.1em;
+    color: #873030;
+}
+
+.login-form input[type="text"] {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+    width: 200px;
+    text-align: center;
+}
+
+.error-message {
+    color: #d32f2f;
+    font-size: 0.9em;
+    margin-top: 5px;
+    white-space: pre-line;
+    max-width: 220px;
+    text-align: center;
+}
