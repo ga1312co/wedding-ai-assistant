@@ -1,5 +1,7 @@
 # WEDDING AI ASSISTANT 🐈🐈‍⬛
 
+<img src="frontend/src/assets/cleosleeping.png" alt="Cleo sleeping" width="400"/>
+
 ### TO RUN: USE .ENV IN ROOT WITH:
 - LOGIN_PASSWORD:XXX
 - GEMINI_API_KEY:XXX
@@ -17,6 +19,9 @@ The frontend is a lightweight vanilla HTML/CSS/JS application (no React or build
 ### DEPLOYMENT
 #### BACKEND - GOOGLE CLOUD RUN ☁️☁️☁️
 #### FRONTEND - FIREBASE 🔥🔥🔥
+
+### UI SCREENSHOT
+<img src="frontend/src/assets/UIScreenshot.png" alt="Cleo sleeping" width="500"/>
 
 ### Known Issues and Future Improvements
 
