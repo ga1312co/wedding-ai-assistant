@@ -61,8 +61,30 @@
         // Set up event listeners
         setupEventListeners();
 
-        // Start login page typewriter effect
-        typewriterEffect(typewriterTitle, 'Gabriel & Beata\n08.08.2026', 100);
+        // Fade in login page once church image is loaded
+        const churchImage = document.querySelector('.church-image');
+        const formContainer = document.querySelector('.login-form-container');
+        function showLogin() {
+            if (formContainer) formContainer.classList.add('loaded');
+            if (churchImage) churchImage.classList.add('loaded');
+            typewriterEffect(typewriterTitle, 'Gabriel & Beata\n08.08.2026', 100);
+        }
+        function triggerFade() {
+            // Delay one frame so the browser paints opacity:0 first
+            requestAnimationFrame(function() {
+                requestAnimationFrame(showLogin);
+            });
+        }
+        if (churchImage) {
+            if (churchImage.complete) {
+                triggerFade();
+            } else {
+                churchImage.addEventListener('load', triggerFade);
+                churchImage.addEventListener('error', triggerFade);
+            }
+        } else {
+            triggerFade();
+        }
     }
 
     function setupEventListeners() {
