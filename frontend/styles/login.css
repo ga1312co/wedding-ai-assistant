@@ -20,6 +20,12 @@
     height: auto;
     border-radius: 8px;
     object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.8s ease-in;
+}
+
+.church-image.loaded {
+    opacity: 1;
 }
 
 .login-form-container {
@@ -29,6 +35,12 @@
     justify-content: center;
     gap: 20px;
     text-align: left;
+    opacity: 0;
+    transition: opacity 0.8s ease-in;
+}
+
+.login-form-container.loaded {
+    opacity: 1;
 }
 
 .login-form-container > span {
