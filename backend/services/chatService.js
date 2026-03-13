@@ -4,7 +4,7 @@ const { getWeddingPrompt } = require('../prompts/weddingPrompt');
 const chatSessions = {};
 
 const createSession = () => {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
   const prompt = getWeddingPrompt();
 
   return {
@@ -56,7 +56,7 @@ const chat = async (sessionId, history, userMessage) => {
     if (affirmative) {
       // If user agrees, respond with a sleep message.
       // Use the special "early" message if appropriate.
-      if (entry.answers <= 4) {
+      if (entry.answers <= 3) {
         return "zzZZz... Glöm inte att OSA... zzzZZZZ...";
       } else {
         return "ZzzZzz...";
