@@ -1,4 +1,19 @@
 /* Media queries for responsive positioning */
+@media (max-width: 700px) {
+    .login-container {
+        flex-direction: column;
+        gap: 30px;
+        padding: 40px 20px;
+    }
+    .login-form-container {
+        align-items: center;
+        text-align: center;
+    }
+    .church-image {
+        width: 240px;
+    }
+}
+
 @media (max-width: 600px) {
     .ai-bubble {
         left: 60%;

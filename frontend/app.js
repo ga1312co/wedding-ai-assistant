@@ -17,7 +17,7 @@
     let currentTypewriterTimeout = null;
 
     // DOM Elements (will be initialized after DOM loads)
-    let loginContainer, chatContainer, loginForm, passwordInput, errorMessage;
+    let loginContainer, chatContainer, loginForm, lastNameInput, errorMessage;
     let typewriterTitle, aiBubble, aiBubbleContent, userBubble, userBubbleContent;
     let chatInput, sendButton, expandButton, rsvpButton, rsvpModal, rsvpClose;
     let chatHistoryModal, minimizeHistory, historyMessages, cleoImage;
@@ -40,7 +40,7 @@
         loginContainer = document.getElementById('login-container');
         chatContainer = document.getElementById('chat-container');
         loginForm = document.getElementById('login-form');
-        passwordInput = document.getElementById('password');
+        lastNameInput = document.getElementById('last-name');
         errorMessage = document.getElementById('error-message');
         typewriterTitle = document.getElementById('typewriter-title');
         aiBubble = document.getElementById('ai-bubble');
@@ -62,7 +62,7 @@
         setupEventListeners();
 
         // Start login page typewriter effect
-        typewriterEffect(typewriterTitle, 'Beata och Gabriels bröllop', 100);
+        typewriterEffect(typewriterTitle, 'Gabriel & Beata\n08.08.2026', 100);
     }
 
     function setupEventListeners() {
@@ -130,35 +130,40 @@
     async function handleLogin(e) {
         e.preventDefault();
         errorMessage.style.display = 'none';
-        
-        const password = passwordInput.value;
-        
+
+        const lastName = lastNameInput.value.trim().slice(0, 100);
+        if (!lastName) return;
+
         try {
             const response = await fetch(`${BASE_URL}/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ password })
+                body: JSON.stringify({ lastName })
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                const data = await response.json();
                 throw new Error(data.message || 'Login failed');
             }
 
             // Login successful - show chat
             loginContainer.style.display = 'none';
             chatContainer.style.display = 'flex';
-            
-            // Show initial welcome message
-            const welcomeMessage = 'Hej! Jag är Cleo. Fråga mig vad du vill om bröllopet. Du skriver ditt meddelande i rutan nedanför.';
-            messages.push({ text: welcomeMessage, sender: 'model' });
-            showBotMessage(welcomeMessage);
-            
+
+            // Show personalized welcome message
+            const guestName = data.guestName || '';
+            const greeting = guestName
+                ? 'Hej! Jag är Cleo. Fråga mig vad du vill om bröllopet, ' + escapeHtml(guestName) + '! Du skriver ditt meddelande i rutan nedanför.'
+                : 'Hej! Jag är Cleo. Fråga mig vad du vill om bröllopet. Du skriver ditt meddelande i rutan nedanför.';
+            messages.push({ text: greeting, sender: 'model' });
+            showBotMessage(greeting);
+
         } catch (err) {
             console.error('Login error:', err);
-            errorMessage.textContent = err.message || 'Failed to connect to the server.';
+            errorMessage.textContent = err.message || 'Kunde inte ansluta till servern.';
             errorMessage.style.display = 'block';
         }
     }

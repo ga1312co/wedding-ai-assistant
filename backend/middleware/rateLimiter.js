@@ -5,7 +5,7 @@ const WARN_AT = 40;
 const store = {}; // { ip: { count, first } }
 
 module.exports = function rateLimiter(req, res, next) {
-  const ip = req.ip || req.connection?.remoteAddress || 'unknown';
+  const ip = req.ip || req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
   const now = Date.now();
   let entry = store[ip];
   if (!entry || now - entry.first > WINDOW_MS) {
