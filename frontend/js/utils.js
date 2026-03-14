@@ -68,7 +68,7 @@ export function typewriterEffect(element, text, delay, onComplete) {
     
     function type() {
         if (index < text.length) {
-            element.textContent += text.charAt(index);
+            element.textContent = text.substring(0, index + 1);
             index++;
             state.currentTypewriterTimeout = setTimeout(type, delay);
         } else if (onComplete) {
