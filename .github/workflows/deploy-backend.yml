@@ -49,6 +49,7 @@ jobs:
           # Set this in GitHub → Settings → Secrets and variables → Actions → Variables
           # Example value: https://wedding-assistant.web.app,https://wedding-assistant.firebaseapp.com
           CORS_ORIGIN: "${{ vars.FRONTEND_ORIGIN || 'https://wedding-assistant.web.app,https://wedding-assistant.firebaseapp.com' }}"
+          GOOGLE_SHEET_URL: "${{ secrets.GOOGLE_SHEET_URL }}"
           EOF
 
       - name: Deploy to Cloud Run
