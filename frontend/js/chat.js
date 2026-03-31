@@ -5,7 +5,7 @@
 
 import { state, elements } from './state.js';
 import { sendMessageToApi } from './api.js';
-import { typewriterEffect, cancelTypewriter, sanitizeAndLinkify } from './utils.js';
+import { typewriterEffect, sanitizeAndLinkify, cancelTypewriter } from './utils.js';
 
 /**
  * Update Cleo image based on sleeping state

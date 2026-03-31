@@ -27,7 +27,16 @@
     .login-form {
         padding: 15px;
     }
-    
+
+    .expanded-chat-history {
+        width: 100%;
+        max-width: 100%;
+        left: 0;
+        transform: translateY(-50%);
+        border-radius: 0;
+        box-sizing: border-box;
+    }
+
     .chat-container {
         --top-pad: clamp(8px, 5svh, 24px);
         --input-stack: calc(84px + env(safe-area-inset-bottom, 0px));
