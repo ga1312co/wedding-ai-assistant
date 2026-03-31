@@ -5,7 +5,7 @@
 
 import { state, elements } from './state.js';
 import { sendMessageToApi } from './api.js';
-import { typewriterEffect, sanitizeAndLinkify } from './utils.js';
+import { typewriterEffect, cancelTypewriter, sanitizeAndLinkify } from './utils.js';
 
 /**
  * Update Cleo image based on sleeping state
@@ -25,10 +25,11 @@ export function updateCleoImage() {
  * @param {string} text - Message text to display
  */
 export function showBotMessage(text) {
+    cancelTypewriter();
     elements.aiBubble.classList.add('visible');
     elements.aiBubble.classList.remove('fade-out');
     state.isTyping = true;
-    
+
     typewriterEffect(elements.aiBubbleContent, text, 50, function() {
         state.isTyping = false;
     });
