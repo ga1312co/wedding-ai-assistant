@@ -29,7 +29,7 @@ export function showBotMessage(text) {
     elements.aiBubble.classList.add('visible');
     elements.aiBubble.classList.remove('fade-out');
     state.isTyping = true;
-    
+
     typewriterEffect(elements.aiBubbleContent, text, 50, function() {
         state.isTyping = false;
     });
