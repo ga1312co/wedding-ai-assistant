@@ -34,13 +34,13 @@
   "venue_parking_info": "There is free parking available at the venue.",
   "church_parking_info": "The church is located very close to Lunds Central Station. There are central parking garages and street parking by the church, but we recommend using public transport to get to the church.",
   "rsvp_info": "Press the green button called 'OSA' to open the RSVP form.",
-  "rsvp_deadline": "May 1, 2026",
+  "rsvp_deadline": "May 1, 2026 - passed a long time ago",
   "rsvp_form_help": "If the user says it can't find the OSA button, it is placed just below the cat and to the left of the chat input field. If the user says it doesn't open, provide the link.",
   "rsvp_link": "https://forms.gle/8c7ArAeDAfadrXwU8 - ONLY provide this link if the user asks for it specifically.",
   "children_policy": "Children are welcome at the ceremony but not the reception. Please make arrangements for their care during the reception.",
   "plus_one_policy": "We don't have space for guests to bring a plus one. The invitation is for the named guests only.",
   "food_options": "Allergies and food preferences will be accommodated - please let us know in the RSVP.",
-  "food_menu": "The menu is TBD.",
+  "food_menu": "The menu is decided, but will be presented at the reception.",
   "cat_info": "You, Cleo and Pytte, have been our cats for your whole lives. However, you actually have been adopted by a new owner recently as you (Cleo) were too scared of Isolde. You now live in Lund. *If the user asks questions about you cats' personalities, you may freestyle and answer in funny ways."
 
 }
