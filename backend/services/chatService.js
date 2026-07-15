@@ -17,7 +17,6 @@ const createSession = () => {
     }),
     answers: 0,
     sleepPrompted: false,
-    rsvpPrompted: false,
     isAwaitingSleepResponse: false,
   };
 };
@@ -34,9 +33,8 @@ const shouldPromptSleep = (answers, userMessage) => {
 
   const userLower = userMessage.toLowerCase();
   const userRequestedSleep = /sov|tupplur|somna|sova/.test(userLower);
-  const userRSVPIntent = /osa|rsvp|anmäln|länk|formulär/.test(userLower);
 
-  if (userRequestedSleep || userRSVPIntent) return false;
+  if (userRequestedSleep) return false;
 
   if (answers >= 4) return true;
   if (answers >= 2 && Math.random() < 0.4) return true;
@@ -55,12 +53,7 @@ const chat = async (sessionId, history, userMessage) => {
 
     if (affirmative) {
       // If user agrees, respond with a sleep message.
-      // Use the special "early" message if appropriate.
-      if (entry.answers <= 3) {
-        return "zzZZz... Glöm inte att OSA... zzzZZZZ...";
-      } else {
-        return "ZzzZzz...";
-      }
+      return "ZzzZzz...";
     }
     // If user does not agree, we fall through and treat it as a normal message.
   }
@@ -72,22 +65,9 @@ const chat = async (sessionId, history, userMessage) => {
       const response = await result.response;
       let text = response.text();
 
-      // Part 1: Handle RSVP state
-      if (!entry.rsvpPrompted) {
-        const rsvpRegex = /osa|rsvp|anmälan|anmäla/i;
-        if (rsvpRegex.test(text)) {
-          entry.rsvpPrompted = true;
-        }
-      }
       entry.answers++;
 
-      if (entry.answers >= 3 && !entry.rsvpPrompted) {
-        text += `\n\nPsst, glöm inte att OSA! Du gör det genom att klicka på den gröna knappen.`;
-        entry.rsvpPrompted = true;
-      }
-
-      // Part 2: Handle Sleep state (blocked by RSVP)
-      if (!entry.sleepPrompted && entry.rsvpPrompted && shouldPromptSleep(entry.answers, userMessage)) {
+      if (!entry.sleepPrompted && shouldPromptSleep(entry.answers, userMessage)) {
         entry.sleepPrompted = true;
         entry.isAwaitingSleepResponse = true; // Set the flag that we've asked
         
