@@ -1,65 +1,51 @@
-// Wedding AI Assistant - Vanilla JavaScript
+// Wedding photos - Vanilla JavaScript
 (function() {
     'use strict';
 
-    // Configuration
     // In production, we use the environment-injected config or fall back to localhost for dev
     const BASE_URL = window.appConfig?.backendUrl || 'http://localhost:3001';
-    
-    // State
-    let messages = [];
-    let sessionId = null;
-    let isSleeping = false;
-    let rateLimitReached = false;
-    let sleepRequested = false;
-    let lastUserMessage = null;
-    let isTyping = false;
+
+    const QUESTION = 'Tack för att du kom på bröllopet!\nVill du se på lite bilder?';
+    const SLEEP_MESSAGE = 'Okej! Då tar jag en tupplur.\nVäck mig om du ändrar dig. Zzz...';
+    const SLIDE_INTERVAL_MS = 5000;
+    const ORBIT_MS = 2400;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     let currentTypewriterTimeout = null;
+    let photosPromise = null;
+    let atTv = false;
 
     // DOM Elements (will be initialized after DOM loads)
-    let loginContainer, chatContainer, loginForm, lastNameInput, errorMessage;
-    let typewriterTitle, aiBubble, aiBubbleContent, userBubble, userBubbleContent;
-    let chatInput, sendButton, expandButton, rsvpButton, rsvpModal, rsvpClose;
-    let chatHistoryModal, minimizeHistory, historyMessages, cleoImage;
+    let loginContainer, loginForm, lastNameInput, errorMessage, typewriterTitle;
+    let room, backdrop, sofaCard, backButton;
+    let cleo, cleoBubble, cleoBubbleText, cleoImage, choices, yesButton, noButton, wakeButton;
 
-    // Initialize session ID (persists during tab session using sessionStorage)
-    function getOrCreateSessionId() {
-        let storedSessionId = sessionStorage.getItem('weddingAssistantSessionId');
-        if (!storedSessionId) {
-            storedSessionId = 'sess_' + Math.random().toString(16).slice(2) + Date.now().toString(36);
-            sessionStorage.setItem('weddingAssistantSessionId', storedSessionId);
-        }
-        return storedSessionId;
-    }
-
-    // Initialize the app
     function init() {
-        sessionId = getOrCreateSessionId();
-        
-        // Get DOM elements
         loginContainer = document.getElementById('login-container');
-        chatContainer = document.getElementById('chat-container');
         loginForm = document.getElementById('login-form');
         lastNameInput = document.getElementById('last-name');
         errorMessage = document.getElementById('error-message');
         typewriterTitle = document.getElementById('typewriter-title');
-        aiBubble = document.getElementById('ai-bubble');
-        aiBubbleContent = document.getElementById('ai-bubble-content');
-        userBubble = document.getElementById('user-bubble');
-        userBubbleContent = document.getElementById('user-bubble-content');
-        chatInput = document.getElementById('chat-input');
-        sendButton = document.getElementById('send-button');
-        expandButton = document.getElementById('expand-button');
-        rsvpButton = document.getElementById('rsvp-button');
-        rsvpModal = document.getElementById('rsvp-modal');
-        rsvpClose = document.getElementById('rsvp-close');
-        chatHistoryModal = document.getElementById('chat-history-modal');
-        minimizeHistory = document.getElementById('minimize-history');
-        historyMessages = document.getElementById('history-messages');
+        room = document.getElementById('room');
+        backdrop = document.getElementById('backdrop');
+        sofaCard = document.getElementById('sofa-card');
+        backButton = document.getElementById('back-button');
+        cleo = document.getElementById('cleo');
+        cleoBubble = document.getElementById('cleo-bubble');
+        cleoBubbleText = document.getElementById('cleo-bubble-text');
         cleoImage = document.getElementById('cleo-image');
+        choices = document.getElementById('choices');
+        yesButton = document.getElementById('yes-button');
+        noButton = document.getElementById('no-button');
+        wakeButton = document.getElementById('wake-button');
 
-        // Set up event listeners
-        setupEventListeners();
+        loginForm.addEventListener('submit', handleLogin);
+        yesButton.addEventListener('click', turnToTv);
+        noButton.addEventListener('click', goToSleep);
+        wakeButton.addEventListener('click', wakeUp);
+        backButton.addEventListener('click', turnToCleo);
+        Slideshow.init();
 
         // Fade in login page once church image is loaded
         const churchImage = document.querySelector('.church-image');
@@ -87,47 +73,12 @@
         }
     }
 
-    function setupEventListeners() {
-        // Login form
-        loginForm.addEventListener('submit', handleLogin);
-
-        // Chat input
-        chatInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                handleSendMessage();
-            }
-        });
-        sendButton.addEventListener('click', handleSendMessage);
-
-        // Expand button (chat history)
-        expandButton.addEventListener('click', function() {
-            showChatHistory();
-        });
-
-        // Minimize chat history
-        minimizeHistory.addEventListener('click', function() {
-            hideChatHistory();
-        });
-
-        // RSVP modal
-        rsvpButton.addEventListener('click', function() {
-            rsvpModal.style.display = 'flex';
-        });
-        rsvpClose.addEventListener('click', function() {
-            rsvpModal.style.display = 'none';
-        });
-        rsvpModal.addEventListener('click', function(e) {
-            if (e.target === rsvpModal) {
-                rsvpModal.style.display = 'none';
-            }
-        });
-    }
-
     // Typewriter effect
     function typewriterEffect(element, text, delay, onComplete) {
+        cancelTypewriter();
         let index = 0;
         element.textContent = '';
-        
+
         function type() {
             if (index < text.length) {
                 element.textContent += text.charAt(index);
@@ -140,7 +91,6 @@
         type();
     }
 
-    // Cancel any ongoing typewriter effect
     function cancelTypewriter() {
         if (currentTypewriterTimeout) {
             clearTimeout(currentTypewriterTimeout);
@@ -148,7 +98,7 @@
         }
     }
 
-    // Login handler
+    // --- Login ---
     async function handleLogin(e) {
         e.preventDefault();
         errorMessage.style.display = 'none';
@@ -171,17 +121,12 @@
                 throw new Error(data.message || 'Login failed');
             }
 
-            // Login successful - show chat
-            loginContainer.style.display = 'none';
-            chatContainer.style.display = 'flex';
+            // Start fetching the photo list while Cleo talks
+            photosPromise = fetchPhotos();
 
-            // Show personalized welcome message
-            const guestName = data.guestName || '';
-            const greeting = guestName
-                ? 'Hej! Jag är Cleo. Fråga mig vad du vill om bröllopet, ' + escapeHtml(guestName) + '! Du skriver ditt meddelande i rutan nedanför.'
-                : 'Hej! Jag är Cleo. Fråga mig vad du vill om bröllopet. Du skriver ditt meddelande i rutan nedanför.';
-            messages.push({ text: greeting, sender: 'model' });
-            showBotMessage(greeting);
+            loginContainer.style.display = 'none';
+            room.hidden = false;
+            askQuestion();
 
         } catch (err) {
             console.error('Login error:', err);
@@ -190,255 +135,227 @@
         }
     }
 
-    // Show bot message with typewriter effect
-    function showBotMessage(text) {
-        aiBubble.classList.add('visible');
-        aiBubble.classList.remove('fade-out');
-        isTyping = true;
-        
-        typewriterEffect(aiBubbleContent, text, 50, function() {
-            isTyping = false;
+    async function fetchPhotos() {
+        const response = await fetch(`${BASE_URL}/photos`);
+        if (!response.ok) throw new Error('Kunde inte hämta bilderna.');
+        const data = await response.json();
+        return data.photos || [];
+    }
+
+    // --- Cleo ---
+    function sayCleo(text, onComplete) {
+        cleoBubble.classList.add('visible');
+        typewriterEffect(cleoBubbleText, text, 45, onComplete);
+    }
+
+    function showChoices(buttons) {
+        [yesButton, noButton, wakeButton].forEach(function(b) {
+            b.hidden = !buttons.includes(b);
+        });
+        choices.classList.add('visible');
+    }
+
+    function hideChoices() {
+        choices.classList.remove('visible');
+    }
+
+    function setSleeping(sleeping) {
+        cleoImage.src = sleeping ? 'assets/cleosleeping.png' : 'assets/cleo.png';
+        cleo.classList.toggle('sleeping', sleeping);
+    }
+
+    function askQuestion() {
+        hideChoices();
+        sayCleo(QUESTION, function() {
+            showChoices([yesButton, noButton]);
         });
     }
 
-    // Update Cleo image based on sleeping state
-    function updateCleoImage() {
-        if (isSleeping) {
-            cleoImage.src = 'assets/cleosleeping.png';
-            cleoImage.className = 'cleo-image cleo-sleeping-image';
-        } else {
-            cleoImage.src = 'assets/cleo.png';
-            cleoImage.className = 'cleo-image';
-        }
+    function goToSleep() {
+        hideChoices();
+        setSleeping(true);
+        sayCleo(SLEEP_MESSAGE, function() {
+            showChoices([wakeButton]);
+        });
     }
 
-    // Send message handler
-    async function handleSendMessage() {
-        const input = chatInput.value.trim();
-        if (input === '') return;
-
-        const raw = input.toLowerCase();
-
-        // If bot previously asked to sleep and user answers affirmatively
-        if (sleepRequested && !isSleeping && !rateLimitReached) {
-            const affirmativeTokenRegex = /\b(ja|japp|ok|okej|okay|yes|sure|absolut|gärna|visst|kör|gör det|låter bra|ta en tupplur|ta tupplur|sov)\b/i;
-            const negativeRegex = /\b(nej|inte|ej|vill inte|no|nope)\b/i;
-            
-            if (affirmativeTokenRegex.test(raw) && !negativeRegex.test(raw)) {
-                sleepRequested = false;
-                isSleeping = true;
-                updateCleoImage();
-                
-                messages.push({ text: input, sender: 'user' });
-                const systemMsg = 'Zzz...';
-                messages.push({ text: systemMsg, sender: 'model' });
-                
-                lastUserMessage = input;
-                showUserBubble(input);
-                showBotMessage(systemMsg);
-                chatInput.value = '';
-                return;
-            } else {
-                sleepRequested = false;
-            }
-        }
-
-        // Manual sleep command
-        if (raw === 'sov' && !isSleeping && !rateLimitReached) {
-            sleepRequested = false;
-            isSleeping = true;
-            updateCleoImage();
-            
-            messages.push({ text: input, sender: 'user' });
-            const systemMsg = 'Zzz...';
-            messages.push({ text: systemMsg, sender: 'model' });
-            
-            lastUserMessage = input;
-            showUserBubble(input);
-            showBotMessage(systemMsg);
-            chatInput.value = '';
-            return;
-        }
-
-        // Wake up if sleeping
-        if (isSleeping && !rateLimitReached) {
-            isSleeping = false;
-            updateCleoImage();
-        }
-
-        // Add user message
-        messages.push({ text: input, sender: 'user' });
-        lastUserMessage = input;
-        showUserBubble(input);
-        chatInput.value = '';
-
-        // Hide AI bubble while waiting
-        aiBubble.classList.add('fade-out');
-        aiBubble.classList.remove('visible');
-
-        if (rateLimitReached) {
-            return;
-        }
-
-        // Send to API
-        try {
-            const response = await sendMessageToApi(input, messages);
-            const botText = response.text;
-            
-            messages.push({ text: botText, sender: 'model' });
-            showBotMessage(botText);
-
-            // Detect if bot is asking permission to sleep
-            if (!isSleeping && !rateLimitReached) {
-                const sleepPromptRegex = /(tupplur|får jag.*sova|kan jag.*sova|ska jag.*sova|sova nu|får jag ta en liten tupplur|får jag vila)/i;
-                if (sleepPromptRegex.test(botText)) {
-                    sleepRequested = true;
-                } else {
-                    sleepRequested = false;
-                }
-            }
-        } catch (error) {
-            console.error('Error sending message:', error);
-            
-            let serverMsg;
-            if (error.status === 429) {
-                isSleeping = true;
-                rateLimitReached = true;
-                sleepRequested = false;
-                updateCleoImage();
-                serverMsg = error.message || 'Du har nått gränsen för idag. Jag sover nu.';
-            } else {
-                serverMsg = 'Error: Could not connect to the chatbot.';
-            }
-            
-            messages.push({ text: serverMsg, sender: 'model' });
-            showBotMessage(serverMsg);
-        }
+    function wakeUp() {
+        setSleeping(false);
+        askQuestion();
     }
 
-    // API call with retry logic
-    async function sendMessageToApi(message, history) {
-        const formattedHistory = history.map(msg => ({
-            role: msg.sender === 'user' ? 'user' : 'model',
-            parts: [{ text: msg.text }]
-        }));
+    // --- Camera orbit ---
+    // The sofa turns around its own axis while the room sweeps sideways, which reads as the
+    // camera circling the sofa. The end state lives in CSS (.room.at-tv) so it survives resizes;
+    // the animations only run between the two states.
+    function orbit(toTv) {
+        const options = {
+            duration: reduceMotion ? 0 : ORBIT_MS,
+            easing: 'ease-in-out',
+            fill: 'forwards'
+        };
+        const behind = getComputedStyle(room).getPropertyValue('--behind-transform').trim();
+        const front = 'translateY(0%) scale(1) rotateY(0deg)';
+        const animations = [
+            sofaCard.animate({ transform: toTv ? [front, behind] : [behind, front] }, options),
+            backdrop.animate({ transform: toTv
+                ? ['translateX(0vw)', 'translateX(-200vw)']
+                : ['translateX(-200vw)', 'translateX(0vw)'] }, options)
+        ];
+        return Promise.all(animations.map(function(a) { return a.finished; })).then(function() {
+            room.classList.toggle('at-tv', toTv);
+            animations.forEach(function(a) { a.cancel(); });
+        });
+    }
 
-        const maxAttempts = 3;
-        let attempt = 0;
-        let lastErr;
+    async function turnToTv() {
+        hideChoices();
+        cleoBubble.classList.remove('visible');
+        Slideshow.load(photosPromise || (photosPromise = fetchPhotos()));
 
-        while (attempt < maxAttempts) {
+        await orbit(true);
+        atTv = true;
+        backButton.hidden = false;
+        Slideshow.play();
+    }
+
+    async function turnToCleo() {
+        atTv = false;
+        backButton.hidden = true;
+        Slideshow.pause();
+
+        await orbit(false);
+        askQuestion();
+    }
+
+    // --- Slideshow on the TV ---
+    const Slideshow = (function() {
+        let photos = [];
+        let index = 0;
+        let timer = null;
+        let playing = false;
+        let shownSlide = 0;
+        let screen, slides, message, counter, playButton, controlsTimeout;
+
+        function init() {
+            screen = document.getElementById('tv-screen');
+            slides = screen.querySelectorAll('.slide');
+            message = document.getElementById('tv-message');
+            counter = document.getElementById('tv-counter');
+            playButton = document.getElementById('play-button');
+
+            document.getElementById('prev-button').addEventListener('click', function() { step(-1); });
+            document.getElementById('next-button').addEventListener('click', function() { step(1); });
+            playButton.addEventListener('click', function() {
+                playing ? pause() : play();
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (!atTv) return;
+                if (e.key === 'ArrowLeft') step(-1);
+                if (e.key === 'ArrowRight') step(1);
+                if (e.key === ' ') { e.preventDefault(); playing ? pause() : play(); }
+            });
+
+            // Swipe on touch screens; a tap shows the controls for a while
+            let touchX = null;
+            screen.addEventListener('touchstart', function(e) {
+                touchX = e.touches[0].clientX;
+            }, { passive: true });
+            screen.addEventListener('touchend', function(e) {
+                if (touchX === null) return;
+                const dx = e.changedTouches[0].clientX - touchX;
+                touchX = null;
+                if (Math.abs(dx) > 40) step(dx < 0 ? 1 : -1);
+                screen.classList.add('show-controls');
+                clearTimeout(controlsTimeout);
+                controlsTimeout = setTimeout(function() {
+                    screen.classList.remove('show-controls');
+                }, 3000);
+            });
+        }
+
+        async function load(promise) {
+            if (photos.length) return;
             try {
-                const response = await fetch(`${BASE_URL}/chat`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message,
-                        history: formattedHistory,
-                        sessionId
-                    })
-                });
-
-                if (!response.ok) {
-                    const data = await response.json().catch(() => ({}));
-                    const err = new Error(data.message || 'Request failed');
-                    err.status = response.status;
-                    throw err;
-                }
-
-                return await response.json();
+                photos = await promise;
             } catch (err) {
-                lastErr = err;
-                attempt++;
-                if (attempt >= maxAttempts) break;
-                // Exponential backoff: 300ms, 600ms
-                await new Promise(r => setTimeout(r, 300 * Math.pow(2, attempt - 1)));
+                console.error('Photo list error:', err);
+                photosPromise = null; // allow a retry on the next turn
+                message.textContent = 'Kunde inte hämta bilderna just nu. Försök igen om en stund!';
+                return;
             }
+            if (!photos.length) {
+                message.textContent = 'Inga bilder här än – kom tillbaka snart!';
+                return;
+            }
+            show(0);
         }
-        throw lastErr;
-    }
 
-    // Show user bubble with last message
-    function showUserBubble(text) {
-        userBubbleContent.innerHTML = sanitizeAndLinkify(text);
-        userBubble.style.opacity = '1';
-        userBubble.classList.add('visible');
-        userBubble.classList.remove('fade-out');
-    }
+        // Crossfade to photo i once it has loaded; skip photos that fail to load
+        function show(i) {
+            index = (i + photos.length) % photos.length;
+            const requested = index;
+            const next = slides[1 - shownSlide];
 
-    // Sanitize and linkify text (similar to React version)
-    // This implementation escapes HTML first, then adds safe links
-    function sanitizeAndLinkify(text) {
-        if (!text) return '';
-        
-        // First, escape all HTML in the input to prevent XSS
-        let content = escapeHtml(text);
+            next.onload = function() {
+                if (requested !== index) return;
+                message.textContent = '';
+                slides[shownSlide].classList.remove('active');
+                next.classList.add('active');
+                shownSlide = 1 - shownSlide;
+                updateCounter();
+                preload(index + 1);
+                scheduleNext();
+            };
+            next.onerror = function() {
+                if (requested !== index) return;
+                console.warn('Could not load photo', photos[requested].id);
+                photos.splice(requested, 1);
+                if (photos.length) {
+                    show(requested);
+                } else {
+                    message.textContent = 'Kunde inte visa bilderna just nu.';
+                }
+            };
+            next.src = photos[index].url;
+        }
 
-        // 1. Convert Markdown links [text](url) to plain anchor
-        // Pattern matches escaped brackets: [text](url)
-        content = content.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, function(_m, label, url) {
-            // URL and label are already escaped since we escaped the whole text first
-            return '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + 
-                   (label === url ? url : label) + '</a>';
-        });
+        function preload(i) {
+            const photo = photos[i % photos.length];
+            if (photo) new Image().src = photo.url;
+        }
 
-        // 2. Extract existing anchors to avoid double-linkifying
-        const anchorTokens = [];
-        content = content.replace(/<a\b[^>]*>.*?<\/a>/gi, function(m) {
-            const token = '__ANCHOR_' + anchorTokens.length + '__';
-            anchorTokens.push(m);
-            return token;
-        });
+        function updateCounter() {
+            counter.textContent = `${index + 1} / ${photos.length}`;
+        }
 
-        // 3. Linkify remaining plain URLs (these are already escaped)
-        content = content.replace(/(https?:\/\/[^\s)<>"']+)/g, function(url) {
-            return '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + '</a>';
-        });
+        function step(direction) {
+            if (!photos.length) return;
+            show(index + direction);
+        }
 
-        // 4. Restore anchors
-        anchorTokens.forEach(function(a, i) {
-            content = content.replace('__ANCHOR_' + i + '__', a);
-        });
+        function scheduleNext() {
+            clearTimeout(timer);
+            if (playing) timer = setTimeout(function() { step(1); }, SLIDE_INTERVAL_MS);
+        }
 
-        return content;
-    }
+        function play() {
+            playing = true;
+            playButton.textContent = '❚❚';
+            playButton.setAttribute('aria-label', 'Pausa');
+            scheduleNext();
+        }
 
-    // Escape HTML entities
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
+        function pause() {
+            playing = false;
+            clearTimeout(timer);
+            playButton.textContent = '▶';
+            playButton.setAttribute('aria-label', 'Spela');
+        }
 
-    // Show chat history
-    function showChatHistory() {
-        historyMessages.innerHTML = '';
-        
-        messages.forEach(function(msg) {
-            const div = document.createElement('div');
-            div.className = 'history-message ' + msg.sender;
-            
-            const strong = document.createElement('strong');
-            strong.textContent = msg.sender === 'user' ? 'You: ' : 'Cleo: ';
-            
-            div.appendChild(strong);
-            
-            const textSpan = document.createElement('span');
-            textSpan.innerHTML = sanitizeAndLinkify(msg.text);
-            div.appendChild(textSpan);
-            
-            historyMessages.appendChild(div);
-        });
-        
-        chatHistoryModal.style.display = 'flex';
-    }
-
-    // Hide chat history
-    function hideChatHistory() {
-        chatHistoryModal.style.display = 'none';
-    }
+        return { init, load, play, pause };
+    })();
 
     // Initialize when DOM is ready
     if (document.readyState === 'loading') {

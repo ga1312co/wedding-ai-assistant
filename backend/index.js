@@ -13,7 +13,7 @@ const path = require('path');
   }
 })();
 (function validateEnv() {
-  const required = ['GEMINI_API_KEY'];
+  const required = ['DRIVE_API_KEY'];
   const missing = required.filter(k => !process.env[k]);
   if (missing.length) {
     console.warn('Startup warning: missing env vars:', missing.join(', '));
@@ -23,7 +23,7 @@ const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
-const chatRoutes = require('./routes/chat');
+const photoRoutes = require('./routes/photos');
 const requestLogger = require('./middleware/requestLogger');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -61,14 +61,14 @@ app.use((req, res, next) => {
 });
 
 app.use('/', authRoutes);
-app.use('/', chatRoutes);
+app.use('/', photoRoutes);
 
 app.use(errorHandler);
 
 app.get('/healthz', (_req, res) => res.status(200).send('ok'));
 
 app.get('/', (_req, res) => {
-  res.send('Hello from the Wedding AI Assistant backend!');
+  res.send('Hello from the wedding photos backend!');
 });
 
 app.listen(port, '0.0.0.0', () => {

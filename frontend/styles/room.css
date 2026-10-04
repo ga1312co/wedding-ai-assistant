@@ -1,0 +1,345 @@
+/* Room: the camera orbits 180° around the sofa.
+ * Faked in 2.5D: the sofa card turns around its own axis (front face → back face)
+ * while the room behind it (a panorama strip of three walls) sweeps sideways. */
+.room {
+    --room-color: #c96d3a;
+    --side-color: #bd6434;
+    --corner-color: #a95529;
+    --floor-color: #b35a2f;
+    --floor-height: min(300px, 32dvh);
+    /* Where the sofa ends up once the camera is behind it */
+    --behind-transform: translateY(26%) scale(1.15) rotateY(180deg);
+    position: fixed;
+    inset: 0;
+    background-color: var(--room-color);
+    overflow: hidden;
+}
+
+/* --- Backdrop: three walls side by side --- */
+.backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 300vw;
+    height: 100%;
+    display: flex;
+}
+
+.room.at-tv .backdrop {
+    transform: translateX(-200vw);
+}
+
+.wall {
+    position: relative;
+    flex: 0 0 100vw;
+    height: 100%;
+    background-color: var(--room-color);
+}
+
+/* Paper-grain noise on the walls */
+.wall::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)"/></svg>');
+    opacity: 0.05;
+    pointer-events: none;
+}
+
+/* Darker side wall with shaded corners so the sweep reads as turning around a room */
+.wall-side {
+    background: linear-gradient(to right,
+        var(--corner-color) 0%, var(--side-color) 12%,
+        var(--side-color) 88%, var(--corner-color) 100%);
+}
+
+.floor {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: var(--floor-height);
+    background-color: var(--floor-color);
+}
+
+/* --- Sofa --- */
+.sofa-scene {
+    position: absolute;
+    left: 50%;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 2dvh);
+    width: min(600px, 100vw);
+    transform: translateX(-50%);
+    perspective: 1400px;
+    z-index: 2;
+}
+
+.sofa-card {
+    position: relative;
+    transform-style: preserve-3d;
+    transform-origin: 50% 85%;
+}
+
+.room.at-tv .sofa-card {
+    transform: var(--behind-transform);
+}
+
+.sofa-face {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.sofa-front {
+    position: relative;
+}
+
+.sofa-back {
+    position: absolute;
+    inset: 0;
+    transform: rotateY(180deg);
+}
+
+.sofa-image {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Cleo sits on the chaise; the speech bubble is anchored to her head */
+.cleo {
+    position: absolute;
+    left: 64%;
+    bottom: 33%;
+    width: 32%;
+    transform: translateX(-50%);
+}
+
+.cleo-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    pointer-events: none;
+}
+
+.cleo.sleeping {
+    bottom: 25%;
+}
+
+.cleo-bubble {
+    position: absolute;
+    bottom: calc(100% + 16px);
+    left: 50%;
+    transform: translateX(-62%);
+    box-sizing: border-box;
+    width: max-content;
+    max-width: min(340px, 86vw);
+    padding: 16px 20px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    color: #333;
+    font-size: 1.05rem;
+    line-height: 1.4;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* The sleeping image has empty space above Cleo */
+.cleo.sleeping .cleo-bubble {
+    bottom: 82%;
+    transform: translateX(-38%);
+}
+
+.cleo.sleeping .cleo-bubble::after {
+    left: 38%;
+}
+
+#cleo-bubble-text {
+    white-space: pre-line;
+}
+
+/* Tail pointing down towards Cleo */
+.cleo-bubble::after {
+    content: "";
+    position: absolute;
+    bottom: -12px;
+    left: 62%;
+    transform: translateX(-50%);
+    border-width: 12px 10px 0;
+    border-style: solid;
+    border-color: #fff transparent transparent;
+}
+
+.cleo-bubble.visible {
+    opacity: 1;
+}
+
+/* Sits in the empty strip at the bottom of sofa.png, just under the legs */
+.choices {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: -9%;
+    padding: 0 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease-in-out;
+}
+
+.choices.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.choice-button {
+    min-width: 120px;
+    padding: 16px 28px;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.15s, background-color 0.2s;
+}
+
+.choice-button:hover {
+    transform: translateY(-2px);
+}
+
+.choice-yes {
+    background-color: #fff;
+    color: #873030;
+}
+
+.choice-no {
+    background-color: rgba(255, 255, 255, 0.25);
+    color: #fff;
+}
+
+/* --- TV --- */
+.tv {
+    position: absolute;
+    z-index: 1;
+    left: 50%;
+    top: 7dvh;
+    transform: translateX(-50%);
+    width: min(76vw, 64dvh * 16 / 9);
+    aspect-ratio: 16 / 9;
+    padding: 1.2%;
+    box-sizing: border-box;
+    background: #1b1b1b;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+.tv-screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+    border-radius: 4px;
+}
+
+.slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+}
+
+.slide.active {
+    opacity: 1;
+}
+
+.tv-message {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    color: #ddd;
+    font-family: 'Garamond', 'Times New Roman', serif;
+    font-size: 1.3rem;
+    text-align: center;
+}
+
+.tv-controls {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 10px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tv-screen:hover .tv-controls,
+.tv-controls:focus-within,
+.tv-screen.show-controls .tv-controls {
+    opacity: 1;
+}
+
+.tv-controls button {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.tv-controls button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.tv-counter {
+    min-width: 4.5em;
+    color: #fff;
+    font-size: 0.9rem;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.back-button {
+    position: absolute;
+    top: calc(16px + env(safe-area-inset-top, 0px));
+    left: 16px;
+    z-index: 10;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.85);
+    color: #873030;
+    font-size: 0.95rem;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 700px) {
+    /* Portrait phones: the TV takes most of the width, above the cats */
+    .tv {
+        top: 20dvh;
+        width: 92vw;
+    }
+    .room {
+        --behind-transform: translateY(18%) scale(1.1) rotateY(180deg);
+    }
+}

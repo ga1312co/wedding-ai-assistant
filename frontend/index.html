@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="sv">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="public/cleo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Cleos bröllopshörna</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -17,54 +17,57 @@
           <p id="error-message" class="error-message" style="display: none;"></p>
         </form>
       </div>
-      <img src="assets/church-front.png" alt="S:t Johannes Church" class="church-image" />
+      <img src="assets/church-front.png" alt="S:t Johannes kyrka" class="church-image" />
     </div>
 
-    <!-- Chat Page (hidden initially) -->
-    <div id="chat-container" class="chat-container" style="display: none;">
-      <div class="messages" id="messages-container"></div>
-      
-      <!-- AI Speech Bubble -->
-      <div class="cats-image-container">
-        <div id="ai-bubble" class="speech-bubble ai-bubble">
-          <span id="ai-bubble-content"></span>
-        </div>
-        <img src="assets/sofa.png" alt="Soffa" class="sofa-image" />
-        <img id="cleo-image" src="assets/cleo.png" alt="Cleo" class="cleo-image" />
-      </div>
-      <div class="floor"></div>
-      
-      <!-- User Speech Bubble (Last Message) -->
-      <div id="user-bubble" class="speech-bubble user-bubble" style="opacity: 0;">
-        <button id="expand-button" class="expand-button">☰</button>
-        <span id="user-bubble-content"></span>
-      </div>
-      
-      <!-- Input Container -->
-      <div class="input-container">
-        <button id="rsvp-button" class="rsvp-button">OSA</button>
-        <div class="input-area">
-          <input type="text" id="chat-input" placeholder="Fråga mig om bröllopet..." />
-          <button id="send-button">➾</button>
-        </div>
-      </div>
-      
-      <!-- Expanded Chat History Modal -->
-      <div id="chat-history-modal" class="expanded-chat-history" style="display: none;">
-        <button id="minimize-history" class="minimize-button">✕</button>
-        <h2>Chat History</h2>
-        <div id="history-messages" class="history-messages"></div>
-      </div>
-      
-      <!-- RSVP Modal -->
-      <div id="rsvp-modal" class="rsvp-modal" style="display: none;">
-        <div class="rsvp-modal-content">
-          <div class="rsvp-modal-header">
-            <span id="rsvp-close" class="close">&times;</span>
+    <!-- Room (hidden until login). The camera orbits 180° around the sofa to end up behind the cats, facing the TV. -->
+    <div id="room" class="room" hidden>
+      <!-- The room as a panorama strip: wall behind the sofa | side wall | TV wall. It sweeps sideways during the orbit. -->
+      <div id="backdrop" class="backdrop">
+        <section class="wall"></section>
+        <section class="wall wall-side"></section>
+        <section class="wall wall-tv">
+          <div id="tv" class="tv">
+            <div id="tv-screen" class="tv-screen">
+              <img class="slide" alt="" referrerpolicy="no-referrer" />
+              <img class="slide" alt="" referrerpolicy="no-referrer" />
+              <p id="tv-message" class="tv-message">Laddar bilder...</p>
+              <div class="tv-controls">
+                <button id="prev-button" type="button" aria-label="Föregående bild">‹</button>
+                <button id="play-button" type="button" aria-label="Pausa">❚❚</button>
+                <span id="tv-counter" class="tv-counter"></span>
+                <button id="next-button" type="button" aria-label="Nästa bild">›</button>
+              </div>
+            </div>
           </div>
-          <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdw7kRBP2pUa6Ka2b9HEZA-tRatiDqRDzB13EF_wHy7LE8n7A/viewform?embedded=true" width="100%" height="500" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+        </section>
+        <div class="floor"></div>
+      </div>
+
+      <!-- The sofa turns around its own axis: front (Cleo) on one side, the back of the cats' heads on the other -->
+      <div class="sofa-scene">
+        <div id="sofa-card" class="sofa-card">
+          <div class="sofa-face sofa-front">
+            <img src="assets/sofa.png" alt="Soffa" class="sofa-image" />
+            <div id="cleo" class="cleo">
+              <div id="cleo-bubble" class="cleo-bubble">
+                <span id="cleo-bubble-text"></span>
+              </div>
+              <img id="cleo-image" src="assets/cleo.png" alt="Cleo" class="cleo-image" />
+            </div>
+          </div>
+          <div class="sofa-face sofa-back">
+            <img src="assets/sofa-back.svg" alt="" class="sofa-image" />
+          </div>
+        </div>
+        <div id="choices" class="choices">
+          <button id="yes-button" class="choice-button choice-yes" type="button">Ja</button>
+          <button id="no-button" class="choice-button choice-no" type="button">Nej</button>
+          <button id="wake-button" class="choice-button choice-yes" type="button" hidden>Väck Cleo</button>
         </div>
       </div>
+
+      <button id="back-button" class="back-button" type="button" hidden>‹ Tillbaka till Cleo</button>
     </div>
 
     <script type="module" src="app.js"></script>
