@@ -7,8 +7,20 @@
     --corner-color: #a95529;
     --floor-color: #b35a2f;
     --floor-height: min(300px, 32dvh);
-    /* Where the sofa ends up once the camera is behind it */
-    --behind-transform: translateY(26%) scale(1.15) rotateY(180deg);
+    /* The TV wall is laid out in design units: --u is one unit in px.
+     * Wide screens use a 1440 x 900 unit scene, portrait screens a 390 x 844 one (see the media queries below). */
+    --u: min(calc(100vw / 1440), calc(100dvh / 900));
+    --tv-floor-height: calc(var(--u) * 156);
+    /* Outline thickness of the drawn furniture */
+    --line: 4px;
+    /* How much of the screen's height the tops of the cats' heads take up at the TV, in percent (read by app.js) */
+    --cat-peek: 5;
+    /* The speaker next to the sideboard; the music player is laid over its front */
+    --speaker-width: max(136px, calc(var(--u) * 146));
+    --speaker-height: max(126px, calc(var(--u) * 132));
+    /* Where the sofa ends up once the camera is just behind the cats.
+     * app.js replaces this with a measured value so only the top of the heads stays in view. */
+    --behind-transform: translateY(75%) scale(2) rotateY(180deg);
     position: fixed;
     inset: 0;
     background-color: var(--room-color);
@@ -53,13 +65,30 @@
         var(--side-color) 88%, var(--corner-color) 100%);
 }
 
-.floor {
+/* Each wall draws its own floor: the floor line is lower on the TV wall than behind the sofa,
+ * and the side wall slants between the two so the sweep still reads as one room. */
+.wall::after {
+    content: "";
     position: absolute;
-    bottom: 0;
     left: 0;
-    width: 100%;
+    right: 0;
+    bottom: 0;
     height: var(--floor-height);
     background-color: var(--floor-color);
+}
+
+.wall-side::after {
+    --tallest: max(var(--floor-height), var(--tv-floor-height));
+    height: var(--tallest);
+    clip-path: polygon(
+        0 calc(var(--tallest) - var(--floor-height)),
+        100% calc(var(--tallest) - var(--tv-floor-height)),
+        100% 100%,
+        0 100%);
+}
+
+.wall-tv::after {
+    height: var(--tv-floor-height);
 }
 
 /* --- Sofa --- */
@@ -83,6 +112,15 @@
     transform: var(--behind-transform);
 }
 
+/* At the TV the zoomed-in sofa covers the lower half of the screen (invisibly, above the heads): let clicks through to the TV */
+.room.at-tv .sofa-scene {
+    pointer-events: none;
+}
+
+.sofa-back .sofa-image {
+    transition: filter 0.35s ease;
+}
+
 .sofa-face {
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
@@ -104,7 +142,7 @@
     display: block;
 }
 
-/* Cleo sits on the chaise; the speech bubble is anchored to her head */
+/* Cleo sits on the chaise; her speech bubble is anchored to her head */
 .cleo {
     position: absolute;
     left: 64%;
@@ -124,11 +162,10 @@
     bottom: 25%;
 }
 
-.cleo-bubble {
+/* --- Speech bubbles (Cleo and Pytte) --- */
+.cat-bubble {
     position: absolute;
-    bottom: calc(100% + 16px);
-    left: 50%;
-    transform: translateX(-62%);
+    z-index: 2;
     box-sizing: border-box;
     width: max-content;
     max-width: min(340px, 86vw);
@@ -141,48 +178,103 @@
     line-height: 1.4;
     text-align: center;
     opacity: 0;
+    pointer-events: none;
     transition: opacity 0.3s ease-in-out;
+}
+
+.cat-bubble.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Long chat answers scroll inside the text, so the tail (::after) is not clipped */
+.cat-bubble-text {
+    display: block;
+    max-height: 36dvh;
+    overflow-y: auto;
+    white-space: pre-line;
+    overflow-wrap: break-word;
+}
+
+/* Tail pointing down towards the cat. It stretches (--tail-length) when Cleo's bubble
+ * is lifted above Pytte's so both fit on a narrow screen. */
+.cat-bubble::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: var(--tail, 50%);
+    width: 20px;
+    height: var(--tail-length, 12px);
+    transform: translateX(-50%);
+    background: #fff;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+/* --cleo-lift is set by app.js while Pytte's bubble is up and the two would overlap */
+.cleo-bubble {
+    --tail: 62%;
+    --tail-length: calc(12px + var(--cleo-lift, 0px));
+    bottom: calc(100% + 16px + var(--cleo-lift, 0px));
+    left: 50%;
+    transform: translateX(-62%);
+    transition: opacity 0.3s ease-in-out, bottom 0.3s ease-in-out;
 }
 
 /* The sleeping image has empty space above Cleo */
 .cleo.sleeping .cleo-bubble {
+    --tail: 38%;
     bottom: 82%;
     transform: translateX(-38%);
 }
 
-.cleo.sleeping .cleo-bubble::after {
-    left: 38%;
+/* Narrow screens: no room to the right of the sleeping Cleo, so the bubble leans left and sits higher, clear of Pytte */
+@media (max-width: 600px) {
+    .cleo.sleeping .cleo-bubble {
+        --tail: 62%;
+        bottom: 128%; /* above Pytte's ears */
+        transform: translateX(-62%);
+    }
 }
 
-#cleo-bubble-text {
-    white-space: pre-line;
+/* Pytte is drawn into sofa.png: head centre at 31% across, ear tips 64% up from the bottom */
+.pytte-bubble {
+    --tail: 35%;
+    left: 31%;
+    bottom: calc(64% + 16px);
+    transform: translateX(-35%);
 }
 
-/* Tail pointing down towards Cleo */
-.cleo-bubble::after {
-    content: "";
-    position: absolute;
-    bottom: -12px;
-    left: 62%;
-    transform: translateX(-50%);
-    border-width: 12px 10px 0;
-    border-style: solid;
-    border-color: #fff transparent transparent;
+/* Wide enough for Cleo and Pytte to talk side by side: their bubbles lean away from each other */
+@media (min-width: 700px) {
+    .cleo-bubble {
+        --tail: 28%;
+        transform: translateX(-28%);
+    }
+    .pytte-bubble {
+        --tail: 72%;
+        transform: translateX(-72%);
+    }
 }
 
-.cleo-bubble.visible {
-    opacity: 1;
+/* Narrow screens: Pytte's bubble stays left of Cleo so her bubble can sit above it */
+@media (max-width: 699px) {
+    .pytte-bubble {
+        --tail: 50%;
+        max-width: 200px;
+        padding: 14px 16px;
+        transform: translateX(-50%);
+    }
+    .choice-button {
+        min-width: 72px;
+        padding: 8px 18px;
+    }
 }
 
-/* Sits in the empty strip at the bottom of sofa.png, just under the legs */
 .choices {
-    position: relative;
-    z-index: 1;
     display: flex;
     justify-content: center;
-    gap: 16px;
-    margin-top: -9%;
-    padding: 0 16px;
+    gap: 12px;
+    margin-top: 14px;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.4s ease-in-out;
@@ -194,14 +286,13 @@
 }
 
 .choice-button {
-    min-width: 120px;
-    padding: 16px 28px;
+    min-width: 88px;
+    padding: 10px 24px;
     border: none;
     border-radius: 30px;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-family: inherit;
     cursor: pointer;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     transition: transform 0.15s, background-color 0.2s;
 }
 
@@ -210,38 +301,52 @@
 }
 
 .choice-yes {
-    background-color: #fff;
-    color: #873030;
-}
-
-.choice-no {
-    background-color: rgba(255, 255, 255, 0.25);
+    background-color: #873030;
     color: #fff;
 }
 
-/* --- TV --- */
+.choice-no {
+    background-color: #f3e3d9;
+    color: #873030;
+}
+
+/* --- TV wall --- */
 .tv {
     position: absolute;
     z-index: 1;
     left: 50%;
-    top: 7dvh;
+    top: calc(100% - var(--u) * 870);
     transform: translateX(-50%);
-    width: min(76vw, 64dvh * 16 / 9);
-    aspect-ratio: 16 / 9;
-    padding: 1.2%;
+    width: calc(var(--u) * 800);
     box-sizing: border-box;
-    background: #1b1b1b;
-    border-radius: 12px;
+    padding: var(--line);
+    background: #c9c6c0; /* the silver edge around the frame */
+    border: var(--line) solid #141414;
+    border-radius: 8px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    transition: width 0.35s ease, top 0.35s ease;
+}
+
+/* Enlarged: the size the TV had before the living room was drawn around it */
+.room.tv-large .tv {
+    z-index: 6;
+    top: 7dvh;
+    width: min(76vw, calc(64dvh * 16 / 9));
+}
+
+.tv-frame {
+    padding: var(--line) var(--line) calc(var(--line) * 2.5);
+    background: #1b1b1b;
+    border-radius: 3px;
 }
 
 .tv-screen {
     position: relative;
     width: 100%;
-    height: 100%;
+    aspect-ratio: 16 / 9;
     overflow: hidden;
     background: #000;
-    border-radius: 4px;
+    border-radius: 2px;
 }
 
 .slide {
@@ -293,19 +398,52 @@
     opacity: 1;
 }
 
-.tv-controls button {
-    width: 40px;
-    height: 40px;
+.tv-button {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--tv-button, 44px);
+    height: var(--tv-button, 44px);
+    padding: 0;
     border: none;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.15);
     color: #fff;
-    font-size: 1.2rem;
-    line-height: 1;
     cursor: pointer;
 }
 
-.tv-controls button:hover {
+.tv-button[hidden] {
+    display: none;
+}
+
+.tv-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.tv-button svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Download and enlarge sit a little apart from the slideshow buttons */
+.tv-button-spaced {
+    margin-left: 12px;
+}
+
+#play-button .icon-play,
+#play-button.paused .icon-pause,
+#enlarge-button .icon-shrink,
+.room.tv-large #enlarge-button .icon-enlarge {
+    display: none;
+}
+
+#play-button.paused .icon-play,
+.room.tv-large #enlarge-button .icon-shrink {
+    display: block;
+}
+
+.room.tv-large #enlarge-button {
     background: rgba(255, 255, 255, 0.3);
 }
 
@@ -317,29 +455,521 @@
     font-variant-numeric: tabular-nums;
 }
 
-.back-button {
+/* "Rotate your phone" hint: app.js shows it for a few seconds after enlarging on a portrait phone */
+.rotate-hint {
+    position: absolute;
+    left: 50%;
+    top: 24%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px 8px 12px;
+    border-radius: 24px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.rotate-hint.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.rotate-icon {
+    transform-origin: 50% 50%;
+    animation: rotate-phone 2.4s ease-in-out infinite;
+}
+
+@keyframes rotate-phone {
+    0%, 25% { transform: rotate(0deg); }
+    55%, 80% { transform: rotate(-90deg); }
+    100% { transform: rotate(0deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rotate-icon {
+        animation: none;
+    }
+}
+
+/* --- The living room under the TV --- */
+.tv-scene {
+    position: absolute;
+    left: calc(50% - var(--u) * 720);
+    bottom: 0;
+    width: calc(var(--u) * 1440);
+    height: calc(var(--u) * 900);
+    pointer-events: none;
+}
+
+/* Each item gives its position and width in design units through --x, --y and --w */
+.scene-item {
+    position: absolute;
+    z-index: 1;
+    left: calc(var(--u) * var(--x));
+    top: calc(var(--u) * var(--y));
+    width: calc(var(--u) * var(--w));
+}
+
+/* Sunlight across the floor */
+.sun-floor {
+    --x: 40; --y: 744; --w: 340;
+    height: calc(var(--u) * 156);
+    background: #c4693a;
+    clip-path: polygon(62% 0, 80% 0, 26% 100%, 0 100%);
+}
+
+.chair { --x: 1284; --y: 570; --w: 146; }
+.plant { --x: 177; --y: 442; --w: 280; }
+.candles { --x: 597; --y: 486; --w: 180; }
+.candlesticks { --x: 910; --y: 497; --w: 140; }
+.lamp { --x: 1150; --y: 422; --w: 110; }
+
+.sideboard {
+    --x: 170; --y: 588; --w: 1100;
+    --body-height: 148;
+    --leg-inset: 110;
+    --leg-width: 56;
+    --leg-height: 50;
+    --seam-inset: 26;
+    --seam-2: 132;
+    --seam-3: 545;
+    --top-plate: 12;
+    --seam-width: 3px;
+    height: calc(var(--u) * (var(--body-height) + var(--leg-height) - 6));
+}
+
+.sideboard-body {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: calc(var(--u) * var(--body-height));
+    box-sizing: border-box;
+    overflow: hidden;
+    background: #e3b874;
+    border: var(--line) solid #141414;
+    border-radius: 4px;
+}
+
+.sideboard-leg {
+    position: absolute;
+    top: calc(var(--u) * (var(--body-height) - 6));
+    width: calc(var(--u) * var(--leg-width));
+    height: calc(var(--u) * var(--leg-height));
+    box-sizing: border-box;
+    background: #d6a862;
+    border: var(--line) solid #141414;
+    border-radius: 2px;
+}
+
+.sideboard-leg-left { left: calc(var(--u) * var(--leg-inset)); }
+.sideboard-leg-right { right: calc(var(--u) * var(--leg-inset)); }
+
+/* Sunlight across the front of the sideboard */
+.sideboard-sun {
+    position: absolute;
+    left: 9%;
+    top: 0;
+    width: 25%;
+    height: 100%;
+    background: #f0cf96;
+    clip-path: polygon(24% 0, 100% 0, 76% 100%, 0 100%);
+}
+
+/* Top plate and the seams between the sliding doors */
+.seam {
+    position: absolute;
+    top: calc(var(--u) * var(--top-plate));
+    width: var(--seam-width);
+    height: 100%;
+    background: #141414;
+}
+
+.seam-top { left: 0; width: 100%; height: var(--seam-width); }
+.seam-1 { left: calc(var(--u) * var(--seam-inset)); }
+.seam-2 { left: calc(var(--u) * var(--seam-2)); }
+.seam-3 { left: calc(var(--u) * var(--seam-3)); }
+.seam-4 { right: calc(var(--u) * var(--seam-inset)); }
+
+/* Speaker on the floor to the left of the sideboard, with the router on top. Only drawn on bigger
+ * landscape screens (see the media query below), where the music player is laid over its front. */
+.speaker {
+    display: none;
+    position: absolute;
+    z-index: 6;
+    left: calc(var(--u) * 20);
+    bottom: calc(var(--u) * 122);
+    width: var(--speaker-width);
+    height: var(--speaker-height);
+    box-sizing: border-box;
+    background: #232325;
+    border: var(--line) solid #141414;
+    border-radius: 8px;
+}
+
+.speaker::before {
+    content: "";
+    position: absolute;
+    left: 8%;
+    bottom: 100%;
+    width: 68%;
+    height: max(26px, calc(var(--u) * 36));
+    box-sizing: border-box;
+    background: #f1efe9;
+    border: var(--line) solid #141414;
+    border-radius: 8px;
+}
+
+/* Dims the room behind the enlarged TV (switched on in a media query below) */
+.room-dim {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    background: #140a06;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+}
+
+/* --- Buttons over the room --- */
+.back-button,
+.music-button {
     position: absolute;
     top: calc(16px + env(safe-area-inset-top, 0px));
-    left: 16px;
     z-index: 10;
-    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
     border: none;
-    border-radius: 30px;
     background: rgba(255, 255, 255, 0.85);
     color: #873030;
-    font-size: 0.95rem;
     font-family: inherit;
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
-@media (max-width: 700px) {
-    /* Portrait phones: the TV takes most of the width, above the cats */
-    .tv {
-        top: 20dvh;
-        width: 92vw;
+.back-button[hidden],
+.music-button[hidden] {
+    display: none;
+}
+
+.back-button {
+    left: 16px;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: 30px;
+    font-size: 0.95rem;
+}
+
+.back-button svg {
+    width: 16px;
+    height: 16px;
+}
+
+.music-button {
+    right: 16px;
+    width: 44px;
+    padding: 0;
+    border-radius: 50%;
+}
+
+.music-button svg {
+    width: 20px;
+    height: 20px;
+}
+
+.room.music-open .music-button {
+    background: #873030;
+    color: #fff;
+}
+
+/* --- Music player (assets/natteravn.mp3) ---
+ * Tucked away by default: a small card that drops down from the music button and is invisible otherwise. */
+.music-player {
+    position: absolute;
+    z-index: 9;
+    right: 16px;
+    top: calc(68px + env(safe-area-inset-top, 0px));
+    width: min(320px, calc(100vw - 32px));
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+        "toggle info info"
+        "toggle seek time";
+    align-items: center;
+    column-gap: 12px;
+    row-gap: 4px;
+    padding: 12px 16px 12px 12px;
+    border-radius: 16px;
+    background: #232325;
+    color: #f1efe9;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.room.tv-on.music-open .music-player {
+    opacity: 1;
+    visibility: visible;
+}
+
+.song-toggle {
+    grid-area: toggle;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #f1efe9;
+    color: #141414;
+    cursor: pointer;
+}
+
+.song-toggle svg {
+    width: 22px;
+    height: 22px;
+}
+
+.song-toggle .icon-pause,
+.music-player.playing .song-toggle .icon-play {
+    display: none;
+}
+
+.music-player.playing .song-toggle .icon-pause {
+    display: block;
+}
+
+.song-info {
+    grid-area: info;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.25;
+}
+
+.song-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.song-artist {
+    font-size: 0.8rem;
+    color: #b9b9c0;
+}
+
+.song-seek {
+    grid-area: seek;
+    width: 100%;
+    min-width: 0;
+    height: 20px;
+    margin: 0;
+    accent-color: #f1efe9;
+    cursor: pointer;
+}
+
+.song-time {
+    grid-area: time;
+    font-size: 0.75rem;
+    color: #b9b9c0;
+    font-variant-numeric: tabular-nums;
+}
+
+/* --- Bigger landscape screens: the player sits on the speaker instead, no music button --- */
+@media (orientation: landscape) and (min-width: 900px) and (min-height: 600px) {
+    .speaker {
+        display: block;
     }
+
+    .music-button {
+        display: none;
+    }
+
+    .music-player {
+        z-index: 3;
+        right: auto;
+        top: auto;
+        left: calc(50% - var(--u) * 700);
+        bottom: calc(var(--u) * 122);
+        width: var(--speaker-width);
+        height: var(--speaker-height);
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "toggle"
+            "info"
+            "seek";
+        justify-items: center;
+        align-content: center;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: transparent;
+        box-shadow: none;
+        text-align: center;
+    }
+
+    .room.tv-on .music-player {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .song-toggle {
+        width: 44px;
+        height: 44px;
+    }
+
+    .song-info {
+        align-items: center;
+    }
+
+    .song-title {
+        font-size: 0.8rem;
+    }
+
+    .song-artist {
+        font-size: 0.7rem;
+    }
+
+    .song-time {
+        display: none;
+    }
+}
+
+/* --- Landscape screens that are not a phone on its side: dim the room while the TV is enlarged --- */
+@media (orientation: landscape) and (min-height: 501px) {
+    .room.tv-large .room-dim {
+        opacity: 0.45;
+    }
+
+    .room.tv-large .sofa-back .sofa-image {
+        filter: brightness(0.6);
+    }
+}
+
+/* --- Portrait screens: 390 x 844 unit scene, TV above the sideboard --- */
+@media (orientation: portrait) {
     .room {
-        --behind-transform: translateY(18%) scale(1.1) rotateY(180deg);
+        --u: min(calc(100vw / 390), calc(100dvh / 640));
+        --tv-floor-height: calc(var(--u) * 152);
+        --line: 3px;
+        --tv-button: min(44px, 11vw);
+    }
+
+    /* Anchored by its lower edge so it grows upwards, away from the lamp and candles */
+    .tv {
+        top: auto;
+        bottom: calc(var(--u) * 350);
+        width: calc(var(--u) * 350);
+        border-radius: 6px;
+        box-shadow: 0 14px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Enlarged: as wide as the device (on tall tablets, as wide as fits under the buttons at the top) */
+    .room.tv-large .tv {
+        z-index: 1;
+        top: auto;
+        width: min(100vw, calc((100dvh - var(--u) * 350 - 99px) * 16 / 9 + 18px));
+    }
+
+    .tv-controls {
+        gap: min(6px, 1.2vw);
+        padding: 6px;
+    }
+
+    .tv-button svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .tv-button-spaced {
+        margin-left: 0;
+    }
+
+    .tv-counter {
+        min-width: 3.6em;
+    }
+
+    .tv-scene {
+        left: calc(50% - var(--u) * 195);
+        width: calc(var(--u) * 390);
+        height: calc(var(--u) * 844);
+    }
+
+    .chair {
+        display: none;
+    }
+
+    .sun-floor {
+        --x: 0; --y: 692; --w: 130;
+        height: calc(var(--u) * 152);
+        clip-path: polygon(58% 0, 84% 0, 24% 100%, 0 100%);
+    }
+
+    .plant { --x: -11; --y: 517; --w: 140; }
+    .candles { --x: 145; --y: 539; --w: 90; }
+    .candlesticks { --x: 240; --y: 545; --w: 70; }
+    .lamp { --x: 318; --y: 507; --w: 55; }
+
+    .sideboard {
+        --x: 6; --y: 590; --w: 378;
+        --body-height: 96;
+        --leg-inset: 38;
+        --leg-width: 34;
+        --leg-height: 34;
+        --seam-inset: 10;
+        --seam-2: 46;
+        --seam-3: 186;
+        --top-plate: 8;
+        --seam-width: 2px;
+    }
+}
+
+/* --- Phones on their side: the TV fills the height, no furniture --- */
+@media (orientation: landscape) and (max-height: 500px) {
+    .room {
+        --tv-floor-height: 0px;
+        --line: 3px;
+    }
+
+    .tv,
+    .room.tv-large .tv {
+        z-index: 1;
+        top: 1.5dvh;
+        /* 92dvh tall including the frame (23px above and below the screen, 18px beside it) */
+        width: min(calc(100vw - 180px), calc((92dvh - 23px) * 16 / 9 + 18px));
+        border-radius: 6px;
+    }
+
+    .tv-scene,
+    .room-dim,
+    .rotate-hint,
+    #enlarge-button {
+        display: none;
+    }
+
+    .tv-button svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* The side margin is too narrow for the full label */
+    .back-button {
+        width: 44px;
+        padding: 0;
+    }
+
+    .back-label {
+        display: none;
     }
 }

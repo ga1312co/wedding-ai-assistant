@@ -6,6 +6,8 @@ services:
     environment:
       - LOGIN_PASSWORD=${LOGIN_PASSWORD}
       - DRIVE_API_KEY=${DRIVE_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GOOGLE_SHEET_URL=${GOOGLE_SHEET_URL}
       - DRIVE_FOLDER_ID=${DRIVE_FOLDER_ID}
     env_file:
       - ./backend/.env

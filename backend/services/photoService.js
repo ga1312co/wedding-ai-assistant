@@ -10,17 +10,6 @@ const DEFAULT_FOLDER_ID = '1h4UOy0rPhs6GV25S0tkimH15PObnN7Z-';
 
 let cache = { photos: null, fetchedAt: 0 };
 
-// Drive's imageMediaMetadata.time looks like "2026:08:08 15:30:12"
-function captureTime(file) {
-  const raw = file.imageMediaMetadata?.time;
-  if (raw) {
-    const iso = raw.replace(/^(\d{4}):(\d{2}):(\d{2}) /, '$1-$2-$3T');
-    const t = Date.parse(iso);
-    if (!Number.isNaN(t)) return t;
-  }
-  return Date.parse(file.createdTime) || 0;
-}
-
 async function fetchFromDrive() {
   const apiKey = process.env.DRIVE_API_KEY;
   const folderId = process.env.DRIVE_FOLDER_ID || DEFAULT_FOLDER_ID;
@@ -34,7 +23,9 @@ async function fetchFromDrive() {
     const params = new URLSearchParams({
       key: apiKey,
       q: `'${folderId}' in parents and trashed = false and mimeType contains 'image/'`,
-      fields: 'nextPageToken, files(id, name, createdTime, imageMediaMetadata(time))',
+      fields: 'nextPageToken, files(id, name)',
+      // Same order as Drive's "Name" sort: numbers compare as numbers, so -49a sits between -49 and -50
+      orderBy: 'name_natural',
       pageSize: '1000'
     });
     if (pageToken) params.set('pageToken', pageToken);
@@ -47,9 +38,6 @@ async function fetchFromDrive() {
     files.push(...(data.files || []));
     pageToken = data.nextPageToken;
   } while (pageToken);
-
-  // Chronological order by when the photo was taken
-  files.sort((a, b) => captureTime(a) - captureTime(b) || a.name.localeCompare(b.name));
 
   return files.map(f => ({
     id: f.id,

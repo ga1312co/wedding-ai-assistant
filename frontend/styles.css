@@ -4,10 +4,12 @@
  * - base.css: Reset and base element styles
  * - login.css: Login page styles
  * - room.css: Cleo's room, the 180° camera turn and the TV slideshow
+ * - chat.css: Chatting with Cleo under the sofa, and the conversation history
  * - responsive.css: Media queries for responsive design
  */
 
 @import url('styles/base.css');
 @import url('styles/login.css');
 @import url('styles/room.css');
+@import url('styles/chat.css');
 @import url('styles/responsive.css');

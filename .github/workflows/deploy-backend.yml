@@ -45,6 +45,8 @@ jobs:
         run: |
           cat > env.yaml <<'EOF'
           DRIVE_API_KEY: "${{ secrets.DRIVE_API_KEY }}"
+          GEMINI_API_KEY: "${{ secrets.GEMINI_API_KEY }}"
+          GOOGLE_SHEET_URL: "${{ secrets.GOOGLE_SHEET_URL }}"
           DRIVE_FOLDER_ID: "${{ vars.DRIVE_FOLDER_ID }}"
           LOGIN_PASSWORD: "${{ secrets.LOGIN_PASSWORD }}"
           # Set this in GitHub → Settings → Secrets and variables → Actions → Variables

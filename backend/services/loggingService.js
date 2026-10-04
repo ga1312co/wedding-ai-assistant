@@ -7,13 +7,15 @@ const GOOGLE_SHEET_WEBHOOK_URL = process.env.GOOGLE_SHEET_URL;
  * @param {string} sessionId - The user's session ID
  * @param {string} question - The user's question
  * @param {string} response - The AI's response
+ * @param {string} guestName - The last name the guest logged in with
  */
-const logToGoogleSheet = async (sessionId, question, response) => {
+const logToGoogleSheet = async (sessionId, question, response, guestName) => {
   try {
     const payload = {
       sessionId,
       question,
-      response
+      response,
+      guestName
     };
 
     const fetchResponse = await fetch(GOOGLE_SHEET_WEBHOOK_URL, {

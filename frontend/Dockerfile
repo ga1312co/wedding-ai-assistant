@@ -6,6 +6,7 @@ WORKDIR /app
 COPY package.json ./
 COPY build.js ./
 COPY index.html styles.css app.js ./
+COPY styles ./styles
 COPY assets ./assets
 COPY public ./public
 
