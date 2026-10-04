@@ -13,7 +13,7 @@ const path = require('path');
   }
 })();
 (function validateEnv() {
-  const required = ['GEMINI_API_KEY'];
+  const required = ['DRIVE_API_KEY', 'GEMINI_API_KEY', 'GOOGLE_SHEET_URL'];
   const missing = required.filter(k => !process.env[k]);
   if (missing.length) {
     console.warn('Startup warning: missing env vars:', missing.join(', '));
@@ -24,6 +24,7 @@ const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const chatRoutes = require('./routes/chat');
+const photoRoutes = require('./routes/photos');
 const requestLogger = require('./middleware/requestLogger');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -62,6 +63,7 @@ app.use((req, res, next) => {
 
 app.use('/', authRoutes);
 app.use('/', chatRoutes);
+app.use('/', photoRoutes);
 
 app.use(errorHandler);
 

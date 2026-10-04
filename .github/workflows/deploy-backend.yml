@@ -44,12 +44,14 @@ jobs:
       - name: Create env file for Cloud Run
         run: |
           cat > env.yaml <<'EOF'
+          DRIVE_API_KEY: "${{ secrets.DRIVE_API_KEY }}"
           GEMINI_API_KEY: "${{ secrets.GEMINI_API_KEY }}"
+          GOOGLE_SHEET_URL: "${{ secrets.GOOGLE_SHEET_URL }}"
+          DRIVE_FOLDER_ID: "${{ vars.DRIVE_FOLDER_ID }}"
           LOGIN_PASSWORD: "${{ secrets.LOGIN_PASSWORD }}"
           # Set this in GitHub → Settings → Secrets and variables → Actions → Variables
           # Example value: https://wedding-assistant.web.app,https://wedding-assistant.firebaseapp.com
           CORS_ORIGIN: "${{ vars.FRONTEND_ORIGIN || 'https://wedding-assistant.web.app,https://wedding-assistant.firebaseapp.com' }}"
-          GOOGLE_SHEET_URL: "${{ secrets.GOOGLE_SHEET_URL }}"
           EOF
 
       - name: Deploy to Cloud Run

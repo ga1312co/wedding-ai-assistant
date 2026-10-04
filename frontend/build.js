@@ -33,6 +33,8 @@ function copyDirRecursive(src, dest) {
         const destPath = path.join(dest, item);
         if (fs.statSync(srcPath).isDirectory()) {
             copyDirRecursive(srcPath, destPath);
+        } else if (item.endsWith('.md')) {
+            // Developer notes (e.g. assets/develop-ui.md) stay out of the published site
         } else {
             fs.copyFileSync(srcPath, destPath);
         }
